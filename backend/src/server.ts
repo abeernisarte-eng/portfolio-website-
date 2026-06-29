@@ -44,6 +44,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
+// Root route: redirect to frontend if available, otherwise show API info
+app.get('/', (req, res) => {
+  const frontendUrl = process.env.FRONTEND_URL;
+  if (frontendUrl) return res.redirect(frontendUrl);
+  res.json({ message: 'API Server - available routes under /api', health: true });
+});
+
 // Bind API Routes
 app.use('/api', apiRouter);
 

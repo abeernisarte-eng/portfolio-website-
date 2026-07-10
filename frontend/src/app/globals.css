@@ -80,6 +80,17 @@ body {
 .font-display { font-family: var(--font-display) !important; }
 .font-body { font-family: var(--font-body) !important; }
 
+/* Site header — overlay on inner pages; home becomes solid after scroll */
+.site-header--overlay {
+  background: transparent;
+}
+
+.site-header--solid {
+  background: color-mix(in srgb, var(--background) 82%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
 h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -366,6 +377,13 @@ html.light p.obermann-hero-subtitle {
   color: var(--muted-foreground);
 }
 
+.services-flip-trigger {
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
 .services-accordion-item {
   font-family: var(--font-display);
   font-size: clamp(1.125rem, 2.2vw, 1.5rem);
@@ -389,6 +407,14 @@ html.light p.obermann-hero-subtitle {
 .services-main-image-wrap {
   position: relative;
   isolation: isolate;
+}
+
+@media (min-width: 1024px) {
+  .services-main-image-wrap--sticky {
+    position: sticky;
+    top: clamp(5rem, 12vh, 7.5rem);
+    align-self: flex-start;
+  }
 }
 
 .services-main-image-glow {
@@ -507,76 +533,81 @@ html.light .services-main-image-badge {
   border-color: rgba(61, 42, 82, 0.12);
 }
 
-/* Scroll morph — Services → About portrait */
-.services-about-morph {
+/* Scroll flip — Services → About portrait (3D card) */
+.services-about-flip-scene {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 45;
-  width: var(--morph-w, 0px);
-  height: var(--morph-h, 0px);
+  width: var(--flip-w, 0px);
+  height: var(--flip-h, 0px);
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  contain: layout style paint;
-  transform: translate3d(var(--morph-x, 0px), var(--morph-y, 0px), 0) rotate(var(--morph-rotate, 0deg));
+  transform: translate3d(var(--flip-x, 0px), var(--flip-y, 0px), 0) rotate(var(--flip-tilt, 0deg));
   transform-origin: center center;
+  contain: layout style paint;
 }
 
-.services-about-morph.is-active {
+.services-about-flip-scene.is-active {
   opacity: 1;
   visibility: visible;
-  will-change: transform;
 }
 
-.services-about-morph-layer--to {
-  opacity: var(--morph-progress, 0);
-  pointer-events: none;
+.services-about-flip-perspective {
+  width: 100%;
+  height: 100%;
+  perspective: 1400px;
+  perspective-origin: center center;
 }
 
-.services-about-morph-inner {
+.services-about-flip-card {
   position: relative;
   width: 100%;
   height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--flip-y-deg, 0deg)) scale(var(--flip-scale, 1));
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.services-about-flip-face {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  border-radius: var(--morph-radius, 2rem);
+  border-radius: var(--flip-radius, 2rem);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
     0 36px 90px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.04) inset,
     0 0 80px rgba(90, 63, 106, 0.22);
-  background: rgba(10, 6, 18, 0.2);
-  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
-.services-about-morph-layer {
-  position: absolute;
-  inset: 0;
+.services-about-flip-face--back {
+  transform: rotateY(180deg);
 }
 
-.services-about-morph-layer--from {
-  opacity: calc(1 - var(--morph-progress, 0));
-  pointer-events: none;
-}
-
-.services-about-morph-image {
+.services-about-flip-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: translateZ(0);
+  transform: translateZ(1px);
 }
 
-.services-about-morph-badge {
-  opacity: var(--morph-badge, 1);
+.services-about-flip-badge {
+  opacity: var(--flip-badge, 1);
 }
 
-.services-about-morph-dot {
-  opacity: var(--morph-dot, 0);
+.services-about-flip-dot {
+  opacity: var(--flip-dot, 0);
 }
 
-html.light .services-about-morph-inner {
+html.light .services-about-flip-face {
   border-color: rgba(61, 42, 82, 0.15);
   box-shadow:
     0 28px 70px rgba(61, 42, 82, 0.18),
@@ -599,6 +630,11 @@ html.light .services-about-morph-inner {
   max-width: 36rem;
   font-size: 1rem;
   line-height: 1.7;
+  color: var(--foreground);
+}
+
+.about-home-bio--follow {
+  margin-top: 1rem;
   color: var(--muted-foreground);
 }
 
@@ -969,8 +1005,12 @@ html.light .featured-stack-card {
   transition: transform 0.4s ease, border-color 0.4s ease;
 }
 
-html.home-gradient .project-card {
+html.site-gradient .project-card {
   background: rgba(20, 16, 28, 0.5);
+}
+
+html.light.site-gradient .project-card {
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .project-card:hover {
@@ -981,7 +1021,7 @@ html.home-gradient .project-card {
 .bg-theme { background-color: var(--background); }
 .stat-card { background: var(--stat-bg); color: var(--stat-fg); }
 
-html.home-gradient body {
+html.site-gradient body {
   background-color: var(--background);
   background-image: var(--page-gradient);
   background-attachment: fixed;
@@ -989,8 +1029,13 @@ html.home-gradient body {
   background-repeat: no-repeat;
 }
 
-html.home-gradient .glass-surface {
+html.site-gradient .glass-surface {
   background: rgba(20, 16, 28, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+html.light.site-gradient .glass-surface {
+  background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(10px);
 }
 

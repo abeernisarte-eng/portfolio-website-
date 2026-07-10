@@ -52,7 +52,7 @@ export default function ProjectDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#08080a] flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <span className="text-zinc-500 text-sm tracking-wider uppercase font-medium animate-pulse">Loading case study...</span>
       </div>
     );
@@ -60,7 +60,7 @@ export default function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#08080a] flex flex-col items-center justify-center gap-6">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6">
         <span className="text-zinc-500 text-sm">Case study not found.</span>
         <Link href="/projects">
           <button className="px-5 py-2.5 rounded-full border border-zinc-800 hover:border-white text-xs font-semibold uppercase text-white transition-colors duration-200">

@@ -8,7 +8,6 @@ import { ArrowUpRight, Plus, Minus } from 'lucide-react';
 import { fallbackData } from '@/services/apiService';
 import FadeIn from '@/components/ui/FadeIn';
 import HeroSection from '@/components/shared/HeroSection';
-import HomeGradient from '@/components/shared/HomeGradient';
 import ServicesAccordion from '@/components/shared/ServicesAccordion';
 import ServicesAboutImageMorph from '@/components/shared/ServicesAboutImageMorph';
 import FeaturedProjectsStack from '@/components/shared/FeaturedProjectsStack';
@@ -64,6 +63,8 @@ export default function Home() {
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const servicesImageFrameRef = useRef<HTMLDivElement>(null);
+  const servicesSectionRef = useRef<HTMLElement>(null);
+  const lastAccordionItemRef = useRef<HTMLDivElement>(null);
   const aboutImageFrameRef = useRef<HTMLDivElement>(null);
 
   const servicesSection = getContent<{
@@ -73,6 +74,12 @@ export default function Home() {
   }>('home.services');
   const servicesMainImage = servicesSection.mainImage || '/images/services/main.jpg';
   const aboutPortrait = about.portraitImage || '/images/about/portrait.jpg';
+  const aboutBioParagraphs = Array.isArray(about.bio)
+    ? about.bio.filter(Boolean)
+    : String(about.bio || '')
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
 
   const featuredProjects = (cms.projects as typeof fallbackData.projects).filter((p) => p.featured).slice(0, 4);
   const displayProjects = loading ? fallbackData.projects.filter((p) => p.featured).slice(0, 4) : featuredProjects.length ? featuredProjects : fallbackData.projects.filter((p) => p.featured).slice(0, 4);
@@ -95,7 +102,6 @@ export default function Home() {
 
   return (
     <div className="landing-page theme-transition">
-      <HomeGradient />
       <HeroSection
         eyebrow={hero.heroEyebrow as string || 'UI/UX DESIGNER • PRODUCT DESIGNER'}
         title={(hero.heroTitle as string) || cmsDefaults.settings.heroTitle}
@@ -106,11 +112,16 @@ export default function Home() {
         secondaryCtaHref={resolveResumeUrl(settings.resumeUrl as string)}
       />
 
-      <ServicesAccordion imageFrameRef={servicesImageFrameRef} />
+      <ServicesAccordion
+        imageFrameRef={servicesImageFrameRef}
+        sectionRef={servicesSectionRef}
+        lastAccordionItemRef={lastAccordionItemRef}
+      />
 
       <ServicesAboutImageMorph
         servicesImageSrc={servicesMainImage}
         aboutImageSrc={aboutPortrait}
+        lastAccordionItemRef={lastAccordionItemRef}
         servicesImageFrameRef={servicesImageFrameRef}
         aboutImageFrameRef={aboutImageFrameRef}
         badgeLeft={servicesSection.badgeLeft || 'Design'}
@@ -148,7 +159,14 @@ export default function Home() {
           <div>
             <FadeIn>
               <h2 className="about-home-heading">{about.heading || 'About me'}</h2>
-              <p className="about-home-bio">{about.bio}</p>
+              {aboutBioParagraphs.map((paragraph, index) => (
+                <p
+                  key={index}
+                  className={`about-home-bio${index > 0 ? ' about-home-bio--follow' : ''}`}
+                >
+                  {paragraph}
+                </p>
+              ))}
             </FadeIn>
 
             <FadeIn delay={0.08}>

@@ -56,7 +56,7 @@ export default function BlogDetail() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center theme-transition">
+      <div className="flex min-h-screen items-center justify-center bg-theme theme-transition">
         <span className="text-sm text-[var(--muted-foreground)]">Loading article...</span>
       </div>
     );
@@ -64,7 +64,7 @@ export default function BlogDetail() {
 
   if (!blog) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 theme-transition">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-theme theme-transition">
         <span className="text-sm text-[var(--muted-foreground)]">Article not found.</span>
         <Link href="/blogs" className="btn-secondary px-6 py-3 text-sm">Back to blogs</Link>
       </div>
@@ -72,7 +72,7 @@ export default function BlogDetail() {
   }
 
   return (
-    <div className="min-h-screen theme-transition pb-24 pt-32">
+    <div className="bg-theme theme-transition pb-24 pt-32">
       <div className="mx-auto max-w-3xl px-6 md:px-12">
         <Link href="/blogs" className="mb-12 inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
           <ArrowLeft className="h-4 w-4" /> Back to Articles
@@ -100,7 +100,7 @@ export default function BlogDetail() {
           />
         </div>
 
-        <article className="my-12 whitespace-pre-line text-base leading-relaxed text-[var(--muted-foreground)] md:text-lg">
+        <article className="my-12 whitespace-pre-line text-base leading-relaxed text-[#444] md:text-lg">
           {blog.content}
         </article>
 

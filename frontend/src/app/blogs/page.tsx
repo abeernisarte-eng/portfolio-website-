@@ -46,7 +46,7 @@ export default function Blogs() {
   }, [activeCategory, searchQuery, blogs]);
 
   return (
-    <div className="min-h-screen theme-transition pb-24 pt-32">
+    <div className="min-h-screen bg-theme theme-transition pb-24 pt-32">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <section className="mb-16">
           <h1 className="brand-heading mb-4">Design Insights & Ideas</h1>

@@ -123,15 +123,9 @@ type ServiceItem = {
 
 type ServicesAccordionProps = {
   imageFrameRef?: React.RefObject<HTMLDivElement | null>;
-  sectionRef?: React.RefObject<HTMLElement | null>;
-  lastAccordionItemRef?: React.RefObject<HTMLDivElement | null>;
 };
 
-export default function ServicesAccordion({
-  imageFrameRef,
-  sectionRef,
-  lastAccordionItemRef,
-}: ServicesAccordionProps = {}) {
+export default function ServicesAccordion({ imageFrameRef }: ServicesAccordionProps = {}) {
   const { cms, getContent } = useCms();
   const section = getContent<{
     heading?: string;
@@ -212,10 +206,7 @@ export default function ServicesAccordion({
   ) : null;
 
   return (
-    <section
-      ref={sectionRef}
-      className="services-accordion-section border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28"
-    >
+    <section className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
       {hoverPreview ? createPortal(hoverPreview, document.body) : null}
 
       <div className="mx-auto grid max-w-7xl items-start gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
@@ -288,13 +279,11 @@ export default function ServicesAccordion({
               );
             })}
           </div>
-
-          <div ref={lastAccordionItemRef} className="services-flip-trigger" aria-hidden />
         </div>
 
         {/* Right — main section image */}
-        <FadeIn delay={0.15} direction="none" className="flex w-full justify-center lg:justify-end">
-          <div className="services-main-image-wrap services-main-image-wrap--sticky w-full max-w-md lg:max-w-lg">
+        <FadeIn delay={0.15} className="flex w-full justify-center lg:justify-end">
+          <div className="services-main-image-wrap w-full max-w-md lg:max-w-lg">
             <div className="services-main-image-glow" aria-hidden />
 
             <motion.div

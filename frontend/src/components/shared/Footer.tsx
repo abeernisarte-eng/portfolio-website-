@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import FadeIn from '@/components/ui/FadeIn';
 import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
@@ -8,6 +9,7 @@ import { cmsDefaults } from '@/lib/cmsDefaults';
 const defaultFooterLinks = cmsDefaults.settings.footerLinks as { name: string; path: string }[];
 
 export default function Footer() {
+  const pathname = usePathname();
   const { cms } = useCms();
   const settings = cms.settings as Record<string, string>;
   const footerLinks = (Array.isArray(cms.settings.footerLinks) && cms.settings.footerLinks.length
@@ -20,10 +22,13 @@ export default function Footer() {
   const contactPhone = settings.contactPhone || '+92 302 4115583';
   const contactLocation = settings.contactLocation || 'Lahore, Pakistan';
   const copyright = settings.copyrightText || `© ${new Date().getFullYear()} ${brandName}. All rights reserved.`;
+  const isHome = pathname === '/';
 
   return (
     <footer
-      className="border-t border-[var(--border)] bg-transparent px-6 py-16 theme-transition sm:px-8 lg:px-12"
+      className={`border-t border-[var(--border)] px-6 py-16 theme-transition sm:px-8 lg:px-12 ${
+        isHome ? 'bg-transparent' : 'bg-[var(--background)]'
+      }`}
     >
       <div className="mx-auto max-w-7xl">
         <FadeIn>

@@ -25,18 +25,15 @@ export default function Navbar() {
   const contactEmail = settings.contactEmail || 'abeernisar11@gmail.com';
   const contactPhone = settings.contactPhone || '+92 302 4115583';
   const isHome = pathname === '/';
-  const isHomeScrolled = isHome && scrolled;
-  const onHero = isHome && !isHomeScrolled;
+  const onHero = isHome && !scrolled;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    setScrolled(window.scrollY > 30);
     setIsOpen(false);
   }, [pathname]);
 
@@ -54,8 +51,8 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`site-header fixed inset-x-0 top-0 z-50 px-6 py-6 transition-[background-color,backdrop-filter] duration-500 sm:px-10 lg:px-14 ${
-          isHomeScrolled ? 'site-header--solid' : 'site-header--overlay'
+        className={`fixed inset-x-0 top-0 z-50 px-6 py-6 transition-colors duration-500 sm:px-10 lg:px-14 ${
+          scrolled && isHome ? 'bg-[var(--background)]/80 backdrop-blur-xl' : ''
         }`}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">

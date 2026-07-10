@@ -53,7 +53,7 @@ export default function Contact() {
   ];
 
   return (
-    <div className="min-h-screen theme-transition pb-24 pt-32">
+    <div className="min-h-screen bg-theme theme-transition pb-24 pt-32">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <section className="mb-16 max-w-2xl">
           <p className="mb-2 text-sm text-[var(--muted-foreground)]">{page.greeting || 'Hi'}</p>

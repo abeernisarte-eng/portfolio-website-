@@ -5,6 +5,15 @@ const DEFAULT_HERO_SUBTITLE_LINES = [
 ] as const;
 
 const DEFAULT_HERO_SUBTITLE = DEFAULT_HERO_SUBTITLE_LINES.join('\n');
+const DEFAULT_RESUME_URL = '/resume/abeer-nisar-resume.pdf';
+
+function resolveResumeUrl(url?: string | null): string {
+  const trimmed = String(url ?? '').trim();
+  if (!trimmed) return DEFAULT_RESUME_URL;
+  if (trimmed.includes('raw.githubusercontent.com/abeernisar/resume')) return DEFAULT_RESUME_URL;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
@@ -58,5 +67,6 @@ export function normalizeHeroSettings<T extends Record<string, unknown>>(setting
     ...settings,
     heroTitle: title ? heroTitleLines(title).join('\n') : 'Turning Ideas Into Beautiful &\nFunctional Products.',
     heroSubtitle: subtitle ? heroSubtitleLines(subtitle).join('\n') : DEFAULT_HERO_SUBTITLE,
+    resumeUrl: resolveResumeUrl(String(settings.resumeUrl ?? '')),
   };
 }

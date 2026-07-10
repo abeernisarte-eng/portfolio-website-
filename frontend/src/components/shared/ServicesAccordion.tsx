@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   motion,
   AnimatePresence,
@@ -61,6 +62,58 @@ const DEFAULT_SERVICES = [
   },
 ];
 
+const PREVIEW_BY_TITLE: Record<string, string> = {
+  'UI/UX Design': '/images/services/ui-ux.jpg',
+  'Graphic Design': '/images/services/graphic-design.jpg',
+  'Web Design': '/images/services/web-design.jpg',
+  'Web & Landing Page Design': '/images/services/web-design.jpg',
+  'Mobile App Design': '/images/services/ui-ux.jpg',
+  Branding: '/images/services/branding.jpg',
+  'Branding & Design Systems': '/images/services/branding.jpg',
+};
+
+const PREVIEW_FALLBACKS = [
+  '/images/services/ui-ux.jpg',
+  '/images/services/graphic-design.jpg',
+  '/images/services/web-design.jpg',
+  '/images/services/branding.jpg',
+];
+
+function resolvePreviewImage(service: ServiceItem, index: number): string {
+  if (service.previewImage) return service.previewImage;
+  if (PREVIEW_BY_TITLE[service.title]) return PREVIEW_BY_TITLE[service.title];
+  return PREVIEW_FALLBACKS[index % PREVIEW_FALLBACKS.length];
+}
+
+const ITEMS_BY_TITLE: Record<string, string[]> = {
+  'UI/UX Design': DEFAULT_SERVICES[0].items,
+  'Graphic Design': DEFAULT_SERVICES[1].items,
+  'Web Design': DEFAULT_SERVICES[2].items,
+  'Web & Landing Page Design': DEFAULT_SERVICES[2].items,
+  'Mobile App Design': [
+    'iOS and Android interface design',
+    'Mobile wireframes and interactive prototypes',
+    'Platform-specific UI patterns and components',
+    'App usability testing and design iteration',
+  ],
+  Branding: DEFAULT_SERVICES[3].items,
+  'Branding & Design Systems': DEFAULT_SERVICES[3].items,
+};
+
+function resolveServiceItems(service: ServiceItem, index: number): string[] {
+  if (Array.isArray(service.items) && service.items.length > 0) return service.items;
+  if (ITEMS_BY_TITLE[service.title]?.length) return ITEMS_BY_TITLE[service.title];
+
+  const matchedDefault = DEFAULT_SERVICES.find(
+    (entry) =>
+      entry.title === service.title ||
+      service.title.toLowerCase().includes(entry.title.toLowerCase())
+  );
+  if (matchedDefault) return matchedDefault.items;
+
+  return DEFAULT_SERVICES[index % DEFAULT_SERVICES.length]?.items ?? [];
+}
+
 type ServiceItem = {
   num?: string;
   title: string;
@@ -82,8 +135,8 @@ export default function ServicesAccordion() {
     ? (cms.services as ServiceItem[]).map((s, i) => ({
         num: s.num || String(i + 1),
         title: s.title,
-        previewImage: s.previewImage || '/images/services/main.jpg',
-        items: Array.isArray(s.items) ? s.items : [],
+        previewImage: resolvePreviewImage(s, i),
+        items: resolveServiceItems(s, i),
       }))
     : DEFAULT_SERVICES;
 
@@ -95,6 +148,11 @@ export default function ServicesAccordion() {
   const badgeRight = section.badgeRight || 'Craft';
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const previewX = useMotionValue(0);
   const previewY = useMotionValue(0);
@@ -114,34 +172,38 @@ export default function ServicesAccordion() {
   const showPreview = hoveredIndex !== null && hoveredIndex !== openIndex;
   const hoveredService = showPreview ? services[hoveredIndex] : null;
 
+  const hoverPreview = mounted ? (
+    <AnimatePresence>
+      {hoveredService && (
+        <motion.div
+          key="service-hover-preview"
+          initial={{ opacity: 0, scale: 0.82 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.82 }}
+          transition={{ duration: 0.28, ease }}
+          className="service-hover-preview pointer-events-none fixed top-0 left-0 z-[200] hidden overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55)] md:block"
+          style={{ x: smoothX, y: smoothY, rotate: -3 }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={hoveredIndex}
+              src={hoveredService.previewImage}
+              alt={hoveredService.title}
+              initial={{ opacity: 0, scale: 1.06 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.22, ease }}
+              className="h-[7.5rem] w-[6.5rem] object-cover sm:h-[8.5rem] sm:w-[7.25rem]"
+            />
+          </AnimatePresence>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  ) : null;
+
   return (
     <section className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
-      {/* Cursor-following hover preview */}
-      <AnimatePresence>
-        {hoveredService && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.82 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.82 }}
-            transition={{ duration: 0.28, ease }}
-            className="service-hover-preview pointer-events-none fixed top-0 left-0 z-[200] hidden overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55)] md:block"
-            style={{ x: smoothX, y: smoothY, rotate: -3 }}
-          >
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={hoveredIndex}
-                src={hoveredService.previewImage}
-                alt={hoveredService.title}
-                initial={{ opacity: 0, scale: 1.06 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.94 }}
-                transition={{ duration: 0.22, ease }}
-                className="h-[7.5rem] w-[6.5rem] object-cover sm:h-[8.5rem] sm:w-[7.25rem]"
-              />
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {hoverPreview ? createPortal(hoverPreview, document.body) : null}
 
       <div className="mx-auto grid max-w-7xl items-start gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
         {/* Left — heading + accordion */}

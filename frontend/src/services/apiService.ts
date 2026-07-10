@@ -9,7 +9,7 @@ export const fallbackData = {
     heroCtaLabel: 'View My Work',
     heroCtaHref: '/projects',
     heroSecondaryCtaLabel: 'Download Resume',
-    resumeUrl: '/uploads/Abeer%20nisar%20resume.pdf',
+    resumeUrl: '/resume/abeer-nisar-resume.pdf',
     contactEmail: 'abeernisar11@gmail.com',
     contactPhone: '+92 302 4115583',
     contactLocation: 'Lahore, Pakistan',

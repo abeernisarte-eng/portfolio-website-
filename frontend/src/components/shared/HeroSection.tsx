@@ -9,6 +9,7 @@ import {
   heroSubtitleLines,
   heroTitleLines,
 } from '@/lib/heroContent';
+import { DEFAULT_RESUME_URL, downloadResume } from '@/lib/resume';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -29,8 +30,13 @@ export default function HeroSection({
   ctaLabel = 'View My Work',
   ctaHref = '/projects',
   secondaryCtaLabel = 'Download Resume',
-  secondaryCtaHref = '/uploads/Abeer%20nisar%20resume.pdf',
+  secondaryCtaHref = DEFAULT_RESUME_URL,
 }: HeroSectionProps) {
+  const handleResumeDownload = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    await downloadResume(secondaryCtaHref);
+  };
+
   return (
     <section className="obermann-hero">
       {/* Large geometric mark behind text */}
@@ -94,9 +100,7 @@ export default function HeroSection({
           {secondaryCtaHref && (
             <a
               href={secondaryCtaHref}
-              target={secondaryCtaHref.startsWith('http') ? '_blank' : undefined}
-              rel={secondaryCtaHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-              download={secondaryCtaHref.includes('/uploads/') ? '' : undefined}
+              onClick={handleResumeDownload}
               className="btn-obermann-outline interactive-cursor"
             >
               {secondaryCtaLabel}

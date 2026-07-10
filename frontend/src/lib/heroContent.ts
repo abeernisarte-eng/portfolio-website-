@@ -1,3 +1,5 @@
+import { resolveResumeUrl } from './resume';
+
 export const DEFAULT_HERO_TITLE = 'Turning Ideas Into Beautiful &\nFunctional Products.';
 
 export const DEFAULT_HERO_SUBTITLE_LINES = [
@@ -60,5 +62,6 @@ export function normalizeHeroSettings<T extends Record<string, unknown>>(setting
     ...settings,
     heroTitle: title ? heroTitleLines(title).join('\n') : DEFAULT_HERO_TITLE,
     heroSubtitle: subtitle ? heroSubtitleLines(subtitle).join('\n') : DEFAULT_HERO_SUBTITLE,
+    resumeUrl: resolveResumeUrl(String(settings.resumeUrl ?? '')),
   };
 }

@@ -14,6 +14,7 @@ import FeaturedProjectsStack from '@/components/shared/FeaturedProjectsStack';
 import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
 import { normalizeHeroSettings } from '@/lib/heroContent';
+import { resolveResumeUrl } from '@/lib/resume';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -91,7 +92,7 @@ export default function Home() {
         ctaLabel={(hero.heroCtaLabel as string) || 'View My Work'}
         ctaHref={(hero.heroCtaHref as string) || '/projects'}
         secondaryCtaLabel={(hero.heroSecondaryCtaLabel as string) || 'Download Resume'}
-        secondaryCtaHref={(settings.resumeUrl as string) || '/uploads/Abeer%20nisar%20resume.pdf'}
+        secondaryCtaHref={resolveResumeUrl(settings.resumeUrl as string)}
       />
 
       <ServicesAccordion />

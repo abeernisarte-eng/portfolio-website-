@@ -125,6 +125,7 @@ export default function AdminSettings() {
               type="text"
               value={settings.resumeUrl || ''}
               onChange={(e) => setSettings({ ...settings, resumeUrl: e.target.value })}
+              placeholder="/resume/abeer-nisar-resume.pdf"
               className="w-full bg-zinc-900/50 border border-zinc-850 text-white px-4 py-2.5 rounded-xl outline-none focus:border-[#8B5CF6] transition-all"
             />
           </div>

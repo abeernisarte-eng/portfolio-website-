@@ -79,9 +79,9 @@ export default function ObermannMark({
   );
 }
 
-export function ObermannLogo({ size = 20 }: { size?: number }) {
+export function ObermannLogo({ size = 20, className = '' }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
       <path
         d="M12 3 L5 12 L12 21"
         stroke="currentColor"

@@ -7,6 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const DESKTOP_MQ = '(min-width: 1024px)';
+
 type ViewportMetrics = {
   cx: number;
   cy: number;
@@ -18,7 +20,8 @@ type ViewportMetrics = {
 type ServicesAboutImageMorphProps = {
   servicesImageSrc: string;
   aboutImageSrc: string;
-  lastAccordionItemRef: React.RefObject<HTMLElement | null>;
+  servicesSectionRef: React.RefObject<HTMLElement | null>;
+  aboutSectionRef: React.RefObject<HTMLElement | null>;
   servicesImageFrameRef: React.RefObject<HTMLDivElement | null>;
   aboutImageFrameRef: React.RefObject<HTMLDivElement | null>;
   badgeLeft?: string;
@@ -54,7 +57,8 @@ function getViewportMetrics(el: HTMLElement, tilt: number): ViewportMetrics {
 export default function ServicesAboutImageMorph({
   servicesImageSrc,
   aboutImageSrc,
-  lastAccordionItemRef,
+  servicesSectionRef,
+  aboutSectionRef,
   servicesImageFrameRef,
   aboutImageFrameRef,
   badgeLeft = 'Design',
@@ -65,53 +69,71 @@ export default function ServicesAboutImageMorph({
   const tiltsRef = useRef({ from: -6, to: -5 });
   const handoffFromRef = useRef<ViewportMetrics | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [canFlip, setCanFlip] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    const mq = window.matchMedia(DESKTOP_MQ);
+    const syncCanFlip = () => setCanFlip(mq.matches);
+    syncCanFlip();
+    mq.addEventListener('change', syncCanFlip);
+    return () => mq.removeEventListener('change', syncCanFlip);
   }, []);
 
   useEffect(() => {
-    if (!mounted || reducedMotion) return;
+    if (!mounted || reducedMotion || !canFlip) return;
 
-    let trigger: ScrollTrigger | null = null;
+    let flipTrigger: ScrollTrigger | null = null;
+    let exitTrigger: ScrollTrigger | null = null;
     let cancelled = false;
+    let refreshTimer: number | null = null;
+
+    const handleResize = () => ScrollTrigger.refresh();
+    const resizeObserver = new ResizeObserver(() => ScrollTrigger.refresh());
 
     const cleanup = () => {
       cancelled = true;
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('lenis-ready', onLenisReady);
       resizeObserver.disconnect();
-      trigger?.kill();
-      trigger = null;
+      if (refreshTimer) window.clearTimeout(refreshTimer);
+      flipTrigger?.kill();
+      exitTrigger?.kill();
+      flipTrigger = null;
+      exitTrigger = null;
 
       const source = servicesImageFrameRef.current;
       const target = aboutImageFrameRef.current;
       const scene = sceneRef.current;
       const sourceWrap = source?.closest('.services-main-image-wrap') as HTMLElement | null;
+      const targetWrap = target?.closest('.about-home-image-wrap') as HTMLElement | null;
 
       scene?.classList.remove('is-active');
       if (source) source.style.visibility = '';
       if (target) target.style.visibility = '';
       if (sourceWrap) sourceWrap.style.visibility = '';
+      if (targetWrap) targetWrap.style.visibility = '';
     };
 
-    const handleResize = () => ScrollTrigger.refresh();
-
-    const resizeObserver = new ResizeObserver(() => ScrollTrigger.refresh());
-
     const setup = (): boolean => {
-      if (cancelled) return false;
+      if (cancelled || flipTrigger) return Boolean(flipTrigger);
 
-      const flipStart = lastAccordionItemRef.current;
+      const servicesSection = servicesSectionRef.current;
+      const aboutSection = aboutSectionRef.current;
       const source = servicesImageFrameRef.current;
       const target = aboutImageFrameRef.current;
       const scene = sceneRef.current;
       const card = cardRef.current;
 
-      if (!flipStart || !source || !target || !scene || !card) return false;
+      if (!servicesSection || !aboutSection || !source || !target || !scene || !card) {
+        return false;
+      }
 
       const sourceWrap = source.closest('.services-main-image-wrap') as HTMLElement | null;
+      const targetWrap = target.closest('.about-home-image-wrap') as HTMLElement | null;
 
       const refreshMetrics = () => {
         tiltsRef.current = {
@@ -125,13 +147,16 @@ export default function ServicesAboutImageMorph({
       };
 
       const setVisibility = (progress: number) => {
-        const flipping = progress > 0.01 && progress < 0.99;
+        const flipping = progress > 0.02 && progress < 0.98;
 
         source.style.visibility = flipping ? 'hidden' : '';
-        target.style.visibility = progress >= 0.99 ? '' : 'hidden';
+        target.style.visibility = progress >= 0.98 ? '' : 'hidden';
 
         if (sourceWrap) {
           sourceWrap.style.visibility = flipping ? 'hidden' : '';
+        }
+        if (targetWrap) {
+          targetWrap.style.visibility = progress >= 0.98 ? '' : 'hidden';
         }
 
         scene.classList.toggle('is-active', flipping);
@@ -140,8 +165,7 @@ export default function ServicesAboutImageMorph({
       const applyFlip = (rawProgress: number) => {
         const progress = gsap.utils.clamp(0, 1, rawProgress);
 
-        if (progress <= 0.01) {
-          handoffFromRef.current = null;
+        if (progress <= 0.02) {
           setVisibility(0);
           return;
         }
@@ -152,14 +176,14 @@ export default function ServicesAboutImageMorph({
 
         setVisibility(progress);
 
-        if (progress >= 0.99) return;
+        if (progress >= 0.98) return;
 
         const { from: fromTilt, to: toTilt } = tiltsRef.current;
         const from = handoffFromRef.current ?? getViewportMetrics(source, fromTilt);
         const to = getViewportMetrics(target, toTilt);
 
         const moveT = smoothstep(progress);
-        const flipT = smoothstep(gsap.utils.clamp(0, 1, progress / 0.7));
+        const flipT = smoothstep(gsap.utils.clamp(0, 1, progress / 0.72));
         const flipDeg = flipT * 180;
 
         const cx = lerp(from.cx, to.cx, moveT);
@@ -183,39 +207,72 @@ export default function ServicesAboutImageMorph({
       };
 
       refreshMetrics();
-      target.style.visibility = 'hidden';
 
-      trigger = ScrollTrigger.create({
-        trigger: flipStart,
+      exitTrigger = ScrollTrigger.create({
+        trigger: servicesSection,
         start: 'bottom bottom',
-        end: () => `+=${Math.max(window.innerHeight * 0.9, 520)}`,
-        scrub: 0.75,
+        invalidateOnRefresh: true,
+        onLeave: () => {
+          captureHandoff();
+        },
+        onEnterBack: () => {
+          handoffFromRef.current = null;
+        },
+      });
+
+      flipTrigger = ScrollTrigger.create({
+        trigger: aboutSection,
+        start: 'top bottom',
+        end: 'top 18%',
+        scrub: 0.85,
         invalidateOnRefresh: true,
         onRefresh: () => {
           refreshMetrics();
+        },
+        onEnter: () => {
+          if (!handoffFromRef.current) {
+            captureHandoff();
+          }
+        },
+        onLeaveBack: () => {
           handoffFromRef.current = null;
+          setVisibility(0);
         },
         onUpdate: (self) => applyFlip(self.progress),
       });
 
-      resizeObserver.observe(flipStart);
+      resizeObserver.observe(servicesSection);
+      resizeObserver.observe(aboutSection);
       resizeObserver.observe(source);
       resizeObserver.observe(target);
 
-      applyFlip(trigger.progress);
+      applyFlip(flipTrigger.progress);
       ScrollTrigger.refresh();
 
       return true;
     };
 
-    window.addEventListener('resize', handleResize, { passive: true });
-
     const trySetup = () => {
-      if (setup()) return;
-      window.setTimeout(() => {
-        if (!cancelled) setup();
-      }, 80);
+      if (setup()) {
+        refreshTimer = window.setTimeout(() => {
+          if (!cancelled) ScrollTrigger.refresh();
+        }, 350);
+        return;
+      }
+      refreshTimer = window.setTimeout(() => {
+        if (!cancelled) trySetup();
+      }, 120);
     };
+
+    const onLenisReady = () => {
+      if (!cancelled) {
+        ScrollTrigger.refresh();
+        trySetup();
+      }
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('lenis-ready', onLenisReady);
 
     const rafId = requestAnimationFrame(() => {
       requestAnimationFrame(trySetup);
@@ -232,7 +289,12 @@ export default function ServicesAboutImageMorph({
           }),
       ),
     ).then(() => {
-      if (!cancelled) ScrollTrigger.refresh();
+      if (!cancelled) {
+        ScrollTrigger.refresh();
+        refreshTimer = window.setTimeout(() => {
+          if (!cancelled) ScrollTrigger.refresh();
+        }, 500);
+      }
     });
 
     return () => {
@@ -241,15 +303,17 @@ export default function ServicesAboutImageMorph({
     };
   }, [
     mounted,
+    canFlip,
     reducedMotion,
-    lastAccordionItemRef,
+    servicesSectionRef,
+    aboutSectionRef,
     servicesImageFrameRef,
     aboutImageFrameRef,
     servicesImageSrc,
     aboutImageSrc,
   ]);
 
-  if (!mounted || reducedMotion) return null;
+  if (!mounted || reducedMotion || !canFlip) return null;
 
   return createPortal(
     <div ref={sceneRef} className="services-about-flip-scene" aria-hidden>

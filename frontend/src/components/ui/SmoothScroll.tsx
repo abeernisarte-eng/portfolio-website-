@@ -39,6 +39,9 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     const onRefresh = () => lenis.resize();
     ScrollTrigger.addEventListener('refresh', onRefresh);
 
+    // Allow page-level ScrollTriggers to initialize after Lenis proxy is ready.
+    window.dispatchEvent(new Event('lenis-ready'));
+
     let animationFrameId = 0;
     const raf = (time: number) => {
       lenis.raf(time);

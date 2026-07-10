@@ -64,7 +64,7 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const servicesImageFrameRef = useRef<HTMLDivElement>(null);
   const servicesSectionRef = useRef<HTMLElement>(null);
-  const lastAccordionItemRef = useRef<HTMLDivElement>(null);
+  const aboutSectionRef = useRef<HTMLElement>(null);
   const aboutImageFrameRef = useRef<HTMLDivElement>(null);
 
   const servicesSection = getContent<{
@@ -115,13 +115,13 @@ export default function Home() {
       <ServicesAccordion
         imageFrameRef={servicesImageFrameRef}
         sectionRef={servicesSectionRef}
-        lastAccordionItemRef={lastAccordionItemRef}
       />
 
       <ServicesAboutImageMorph
         servicesImageSrc={servicesMainImage}
         aboutImageSrc={aboutPortrait}
-        lastAccordionItemRef={lastAccordionItemRef}
+        servicesSectionRef={servicesSectionRef}
+        aboutSectionRef={aboutSectionRef}
         servicesImageFrameRef={servicesImageFrameRef}
         aboutImageFrameRef={aboutImageFrameRef}
         badgeLeft={servicesSection.badgeLeft || 'Design'}
@@ -129,18 +129,14 @@ export default function Home() {
       />
 
       {/* About */}
-      <section className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
+      <section
+        ref={aboutSectionRef}
+        className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28"
+      >
         <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
           <FadeIn delay={0.15} className="flex justify-center lg:justify-start">
             <div className="about-home-image-wrap">
-              <motion.div
-                ref={aboutImageFrameRef}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.9, ease }}
-                className="about-home-image-frame"
-              >
+              <div ref={aboutImageFrameRef} className="about-home-image-frame">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={aboutPortrait}
@@ -152,7 +148,7 @@ export default function Home() {
                   decoding="async"
                 />
                 <span className="about-home-image-dot" aria-hidden />
-              </motion.div>
+              </div>
             </div>
           </FadeIn>
 

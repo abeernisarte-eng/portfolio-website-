@@ -124,13 +124,11 @@ type ServiceItem = {
 type ServicesAccordionProps = {
   imageFrameRef?: React.RefObject<HTMLDivElement | null>;
   sectionRef?: React.RefObject<HTMLElement | null>;
-  lastAccordionItemRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 export default function ServicesAccordion({
   imageFrameRef,
   sectionRef,
-  lastAccordionItemRef,
 }: ServicesAccordionProps = {}) {
   const { cms, getContent } = useCms();
   const section = getContent<{
@@ -288,8 +286,6 @@ export default function ServicesAccordion({
               );
             })}
           </div>
-
-          <div ref={lastAccordionItemRef} className="services-flip-trigger" aria-hidden />
         </div>
 
         {/* Right — main section image */}

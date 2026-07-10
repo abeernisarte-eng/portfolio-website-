@@ -37,7 +37,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <body className="font-body bg-theme text-[var(--foreground)] antialiased theme-transition">
         <Script id="theme-init" strategy="beforeInteractive">
-          {`(function(){try{if(localStorage.getItem('theme')==='light')document.documentElement.classList.add('light');}catch(e){}})();`}
+          {`(function(){try{var p=location.pathname;if(localStorage.getItem('theme')==='light')document.documentElement.classList.add('light');if(!/^\\/admin(?:\\/|$)/.test(p))document.documentElement.classList.add('site-gradient');}catch(e){}})();`}
         </Script>
         <ThemeProvider>
           <CmsProvider>

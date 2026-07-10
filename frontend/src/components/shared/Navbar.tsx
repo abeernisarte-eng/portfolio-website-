@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X, Mail, Phone } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { ObermannLogo } from '@/components/ui/ObermannMark';
+import { useTheme } from '@/context/ThemeContext';
 import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
 
@@ -17,6 +18,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { cms } = useCms();
+  const { theme, mounted: themeMounted } = useTheme();
   const settings = cms.settings as Record<string, string>;
   const navItems = (Array.isArray(cms.settings.navItems) && cms.settings.navItems.length
     ? cms.settings.navItems
@@ -29,14 +31,17 @@ export default function Navbar() {
   const onHero = isHome && !isHomeScrolled;
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
+    const handleScroll = () => {
+      const y = document.documentElement.scrollTop || window.scrollY;
+      setScrolled(y > 30);
+    };
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    setScrolled(window.scrollY > 30);
+    setScrolled((document.documentElement.scrollTop || window.scrollY) > 30);
     setIsOpen(false);
   }, [pathname]);
 
@@ -60,7 +65,10 @@ export default function Navbar() {
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <Link href="/" className={`interactive-cursor flex items-center gap-2.5 ${textCls}`}>
-            <ObermannLogo size={18} />
+            <ObermannLogo
+              size={18}
+              className={themeMounted && theme === 'dark' ? 'nav-logo-mark-dark' : ''}
+            />
             <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em]">
               {brandName}
             </span>

@@ -91,6 +91,11 @@ body {
   -webkit-backdrop-filter: blur(20px);
 }
 
+/* Navbar logo — minimal softening in dark mode only (light mode unchanged) */
+.nav-logo-mark-dark {
+  opacity: 0.84;
+}
+
 h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -538,7 +543,7 @@ html.light .services-main-image-badge {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 45;
+  z-index: 30;
   width: var(--flip-w, 0px);
   height: var(--flip-h, 0px);
   pointer-events: none;
@@ -1021,8 +1026,9 @@ html.light.site-gradient .project-card {
 .bg-theme { background-color: var(--background); }
 .stat-card { background: var(--stat-bg); color: var(--stat-fg); }
 
-html.site-gradient body {
-  background-color: var(--background);
+html.site-gradient body,
+html.site-gradient body.bg-theme {
+  background-color: transparent;
   background-image: var(--page-gradient);
   background-attachment: fixed;
   background-size: cover;

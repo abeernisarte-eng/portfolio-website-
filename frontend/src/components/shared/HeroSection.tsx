@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ObermannMark from '@/components/ui/ObermannMark';
+import { useTheme } from '@/context/ThemeContext';
 import {
   DEFAULT_HERO_SUBTITLE,
   DEFAULT_HERO_TITLE,
@@ -32,6 +33,9 @@ export default function HeroSection({
   secondaryCtaLabel = 'Download Resume',
   secondaryCtaHref = DEFAULT_RESUME_URL,
 }: HeroSectionProps) {
+  const { theme, mounted: themeMounted } = useTheme();
+  const isLightHero = themeMounted && theme === 'light';
+
   const handleResumeDownload = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     await downloadResume(secondaryCtaHref);
@@ -47,7 +51,10 @@ export default function HeroSection({
           transition={{ duration: 1.2, ease }}
           className="relative h-[min(78vw,580px)] w-[min(78vw,580px)]"
         >
-          <ObermannMark className="h-full w-full opacity-[0.48]" />
+          <ObermannMark
+            variant={isLightHero ? 'default' : 'minimal'}
+            className="obermann-hero-mark h-full w-full"
+          />
         </motion.div>
       </div>
 

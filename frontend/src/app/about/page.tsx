@@ -48,7 +48,7 @@ export default function About() {
   ];
 
   return (
-    <div className="bg-theme theme-transition pb-24 pt-32">
+    <div className="min-h-screen theme-transition pb-24 pt-32">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <section className="mb-24 grid gap-16 lg:grid-cols-2 lg:items-start">
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
@@ -57,7 +57,16 @@ export default function About() {
           <div>
             <h1 className="brand-heading mb-6">{page.heading || 'About me'}</h1>
             {bioParagraphs.map((para, i) => (
-              <p key={i} className={`${i === 0 ? 'mb-6 text-lg leading-relaxed text-[#444]' : 'mb-10 text-[var(--muted-foreground)]'}`}>{para}</p>
+              <p
+                key={i}
+                className={
+                  i === 0
+                    ? 'mb-6 text-lg leading-relaxed text-[var(--foreground)]'
+                    : 'mb-10 text-[var(--muted-foreground)]'
+                }
+              >
+                {para}
+              </p>
             ))}
             <div className="grid grid-cols-3 gap-6 border-y border-[var(--border)] py-8">
               {stats.map((s) => (

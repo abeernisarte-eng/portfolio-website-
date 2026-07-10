@@ -7,9 +7,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+type ViewportMetrics = {
+  cx: number;
+  cy: number;
+  width: number;
+  height: number;
+  tilt: number;
+};
+
 type ServicesAboutImageMorphProps = {
   servicesImageSrc: string;
   aboutImageSrc: string;
+  lastAccordionItemRef: React.RefObject<HTMLElement | null>;
   servicesImageFrameRef: React.RefObject<HTMLDivElement | null>;
   aboutImageFrameRef: React.RefObject<HTMLDivElement | null>;
   badgeLeft?: string;
@@ -20,38 +29,41 @@ function lerp(start: number, end: number, t: number) {
   return start + (end - start) * t;
 }
 
-function readAngle(el: HTMLElement) {
+function smoothstep(t: number) {
+  return t * t * (3 - 2 * t);
+}
+
+function readTilt(el: HTMLElement) {
   const transform = window.getComputedStyle(el).transform;
   if (!transform || transform === 'none') return 0;
   const matrix = new DOMMatrix(transform);
   return Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
 }
 
-function getViewportMetrics(el: HTMLElement, angle: number) {
+function getViewportMetrics(el: HTMLElement, tilt: number): ViewportMetrics {
   const rect = el.getBoundingClientRect();
-  const width = el.offsetWidth;
-  const height = el.offsetHeight;
-
   return {
     cx: rect.left + rect.width / 2,
     cy: rect.top + rect.height / 2,
-    width,
-    height,
-    angle,
+    width: el.offsetWidth,
+    height: el.offsetHeight,
+    tilt,
   };
 }
 
 export default function ServicesAboutImageMorph({
   servicesImageSrc,
   aboutImageSrc,
+  lastAccordionItemRef,
   servicesImageFrameRef,
   aboutImageFrameRef,
   badgeLeft = 'Design',
   badgeRight = 'Craft',
 }: ServicesAboutImageMorphProps) {
-  const morphRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const anglesRef = useRef({ from: -6, to: -5 });
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const tiltsRef = useRef({ from: -6, to: -5 });
+  const handoffFromRef = useRef<ViewportMetrics | null>(null);
   const [mounted, setMounted] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -63,88 +75,152 @@ export default function ServicesAboutImageMorph({
   useEffect(() => {
     if (!mounted || reducedMotion) return;
 
-    const source = servicesImageFrameRef.current;
-    const target = aboutImageFrameRef.current;
-    const morph = morphRef.current;
-    const inner = innerRef.current;
+    let trigger: ScrollTrigger | null = null;
+    let cancelled = false;
 
-    if (!source || !target || !morph || !inner) return;
+    const cleanup = () => {
+      cancelled = true;
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
+      trigger?.kill();
+      trigger = null;
 
-    const sourceWrap = source.closest('.services-main-image-wrap') as HTMLElement | null;
+      const source = servicesImageFrameRef.current;
+      const target = aboutImageFrameRef.current;
+      const scene = sceneRef.current;
+      const sourceWrap = source?.closest('.services-main-image-wrap') as HTMLElement | null;
 
-    const refreshAngles = () => {
-      anglesRef.current = {
-        from: readAngle(source),
-        to: readAngle(target),
-      };
+      scene?.classList.remove('is-active');
+      if (source) source.style.visibility = '';
+      if (target) target.style.visibility = '';
+      if (sourceWrap) sourceWrap.style.visibility = '';
     };
-
-    const setVisibility = (progress: number) => {
-      const morphing = progress > 0.02 && progress < 0.98;
-
-      source.style.visibility = morphing ? 'hidden' : '';
-      target.style.visibility = progress >= 0.98 ? '' : 'hidden';
-
-      if (sourceWrap) {
-        sourceWrap.style.visibility = morphing ? 'hidden' : '';
-      }
-
-      morph.classList.toggle('is-active', morphing);
-    };
-
-    const applyMorph = (rawProgress: number) => {
-      const progress = gsap.utils.clamp(0, 1, rawProgress);
-      setVisibility(progress);
-
-      if (progress <= 0.02 || progress >= 0.98) return;
-
-      const { from: fromAngle, to: toAngle } = anglesRef.current;
-      const from = getViewportMetrics(source, fromAngle);
-      const to = getViewportMetrics(target, toAngle);
-
-      const cx = lerp(from.cx, to.cx, progress);
-      const cy = lerp(from.cy, to.cy, progress);
-      const width = lerp(from.width, to.width, progress);
-      const height = lerp(from.height, to.height, progress);
-      const rotate = lerp(fromAngle, toAngle, progress);
-      const x = cx - width / 2;
-      const y = cy - height / 2;
-
-      morph.style.setProperty('--morph-x', `${x}px`);
-      morph.style.setProperty('--morph-y', `${y}px`);
-      morph.style.setProperty('--morph-w', `${width}px`);
-      morph.style.setProperty('--morph-h', `${height}px`);
-      morph.style.setProperty('--morph-rotate', `${rotate}deg`);
-      morph.style.setProperty('--morph-radius', `${lerp(32, 28, progress)}px`);
-      morph.style.setProperty('--morph-progress', String(progress));
-      morph.style.setProperty('--morph-badge', String(Math.max(0, 1 - progress * 1.6)));
-      morph.style.setProperty('--morph-dot', String(Math.max(0, (progress - 0.45) * 1.8)));
-    };
-
-    const trigger = ScrollTrigger.create({
-      trigger: source,
-      start: 'top 70%',
-      endTrigger: target,
-      end: 'top 45%',
-      scrub: true,
-      fastScrollEnd: true,
-      invalidateOnRefresh: true,
-      onRefresh: refreshAngles,
-      onUpdate: (self) => applyMorph(self.progress),
-    });
 
     const handleResize = () => ScrollTrigger.refresh();
-    window.addEventListener('resize', handleResize, { passive: true });
 
     const resizeObserver = new ResizeObserver(() => ScrollTrigger.refresh());
-    resizeObserver.observe(source);
-    resizeObserver.observe(target);
 
-    refreshAngles();
-    target.style.visibility = 'hidden';
-    applyMorph(trigger.progress);
+    const setup = (): boolean => {
+      if (cancelled) return false;
 
-    const refreshAfterImages = () => ScrollTrigger.refresh();
+      const flipStart = lastAccordionItemRef.current;
+      const source = servicesImageFrameRef.current;
+      const target = aboutImageFrameRef.current;
+      const scene = sceneRef.current;
+      const card = cardRef.current;
+
+      if (!flipStart || !source || !target || !scene || !card) return false;
+
+      const sourceWrap = source.closest('.services-main-image-wrap') as HTMLElement | null;
+
+      const refreshMetrics = () => {
+        tiltsRef.current = {
+          from: readTilt(source),
+          to: readTilt(target),
+        };
+      };
+
+      const captureHandoff = () => {
+        handoffFromRef.current = getViewportMetrics(source, tiltsRef.current.from);
+      };
+
+      const setVisibility = (progress: number) => {
+        const flipping = progress > 0.01 && progress < 0.99;
+
+        source.style.visibility = flipping ? 'hidden' : '';
+        target.style.visibility = progress >= 0.99 ? '' : 'hidden';
+
+        if (sourceWrap) {
+          sourceWrap.style.visibility = flipping ? 'hidden' : '';
+        }
+
+        scene.classList.toggle('is-active', flipping);
+      };
+
+      const applyFlip = (rawProgress: number) => {
+        const progress = gsap.utils.clamp(0, 1, rawProgress);
+
+        if (progress <= 0.01) {
+          handoffFromRef.current = null;
+          setVisibility(0);
+          return;
+        }
+
+        if (!handoffFromRef.current) {
+          captureHandoff();
+        }
+
+        setVisibility(progress);
+
+        if (progress >= 0.99) return;
+
+        const { from: fromTilt, to: toTilt } = tiltsRef.current;
+        const from = handoffFromRef.current ?? getViewportMetrics(source, fromTilt);
+        const to = getViewportMetrics(target, toTilt);
+
+        const moveT = smoothstep(progress);
+        const flipT = smoothstep(gsap.utils.clamp(0, 1, progress / 0.7));
+        const flipDeg = flipT * 180;
+
+        const cx = lerp(from.cx, to.cx, moveT);
+        const cy = lerp(from.cy, to.cy, moveT);
+        const width = lerp(from.width, to.width, moveT);
+        const height = lerp(from.height, to.height, moveT);
+        const tilt = lerp(fromTilt, toTilt, moveT);
+        const radius = lerp(32, 28, moveT);
+        const depthScale = 1 + Math.sin(flipT * Math.PI) * 0.04;
+
+        scene.style.setProperty('--flip-x', `${cx - width / 2}px`);
+        scene.style.setProperty('--flip-y', `${cy - height / 2}px`);
+        scene.style.setProperty('--flip-w', `${width}px`);
+        scene.style.setProperty('--flip-h', `${height}px`);
+        scene.style.setProperty('--flip-tilt', `${tilt}deg`);
+        scene.style.setProperty('--flip-radius', `${radius}px`);
+        card.style.setProperty('--flip-y-deg', `${flipDeg}deg`);
+        card.style.setProperty('--flip-scale', String(depthScale));
+        card.style.setProperty('--flip-badge', String(Math.max(0, 1 - flipT * 2)));
+        card.style.setProperty('--flip-dot', String(Math.max(0, (flipT - 0.5) * 2)));
+      };
+
+      refreshMetrics();
+      target.style.visibility = 'hidden';
+
+      trigger = ScrollTrigger.create({
+        trigger: flipStart,
+        start: 'bottom bottom',
+        end: () => `+=${Math.max(window.innerHeight * 0.9, 520)}`,
+        scrub: 0.75,
+        invalidateOnRefresh: true,
+        onRefresh: () => {
+          refreshMetrics();
+          handoffFromRef.current = null;
+        },
+        onUpdate: (self) => applyFlip(self.progress),
+      });
+
+      resizeObserver.observe(flipStart);
+      resizeObserver.observe(source);
+      resizeObserver.observe(target);
+
+      applyFlip(trigger.progress);
+      ScrollTrigger.refresh();
+
+      return true;
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    const trySetup = () => {
+      if (setup()) return;
+      window.setTimeout(() => {
+        if (!cancelled) setup();
+      }, 80);
+    };
+
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(trySetup);
+    });
+
     void Promise.all(
       [servicesImageSrc, aboutImageSrc].map(
         (src) =>
@@ -155,56 +231,48 @@ export default function ServicesAboutImageMorph({
             img.src = src;
           }),
       ),
-    ).then(refreshAfterImages);
+    ).then(() => {
+      if (!cancelled) ScrollTrigger.refresh();
+    });
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      resizeObserver.disconnect();
-      trigger.kill();
-
-      morph.classList.remove('is-active');
-      source.style.visibility = '';
-      target.style.visibility = '';
-      if (sourceWrap) sourceWrap.style.visibility = '';
+      cancelAnimationFrame(rafId);
+      cleanup();
     };
-  }, [mounted, reducedMotion, servicesImageFrameRef, aboutImageFrameRef, servicesImageSrc, aboutImageSrc]);
+  }, [
+    mounted,
+    reducedMotion,
+    lastAccordionItemRef,
+    servicesImageFrameRef,
+    aboutImageFrameRef,
+    servicesImageSrc,
+    aboutImageSrc,
+  ]);
 
   if (!mounted || reducedMotion) return null;
 
   return createPortal(
-    <div ref={morphRef} className="services-about-morph" aria-hidden>
-      <div ref={innerRef} className="services-about-morph-inner">
-        <div className="services-about-morph-layer services-about-morph-layer--from">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={servicesImageSrc}
-            alt=""
-            className="services-about-morph-image"
-            loading="eager"
-            decoding="async"
-          />
-          <div className="services-main-image-overlay" />
-          <div className="services-main-image-shine" />
-        </div>
+    <div ref={sceneRef} className="services-about-flip-scene" aria-hidden>
+      <div className="services-about-flip-perspective">
+        <div ref={cardRef} className="services-about-flip-card">
+          <div className="services-about-flip-face services-about-flip-face--front">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={servicesImageSrc} alt="" className="services-about-flip-image" loading="eager" decoding="async" />
+            <div className="services-main-image-overlay" />
+            <div className="services-main-image-shine" />
+            <div className="services-main-image-badge services-about-flip-badge">
+              <span>{badgeLeft}</span>
+              <span className="services-main-image-badge-dot" />
+              <span>{badgeRight}</span>
+            </div>
+          </div>
 
-        <div className="services-about-morph-layer services-about-morph-layer--to">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={aboutImageSrc}
-            alt=""
-            className="services-about-morph-image"
-            loading="lazy"
-            decoding="async"
-          />
+          <div className="services-about-flip-face services-about-flip-face--back">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={aboutImageSrc} alt="" className="services-about-flip-image" loading="lazy" decoding="async" />
+            <span className="about-home-image-dot services-about-flip-dot" />
+          </div>
         </div>
-
-        <div className="services-main-image-badge services-about-morph-badge">
-          <span>{badgeLeft}</span>
-          <span className="services-main-image-badge-dot" />
-          <span>{badgeRight}</span>
-        </div>
-
-        <span className="about-home-image-dot services-about-morph-dot" />
       </div>
     </div>,
     document.body,

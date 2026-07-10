@@ -38,7 +38,7 @@ export default function Projects() {
   }, [activeCategory, searchQuery, projects]);
 
   return (
-    <div className="min-h-screen bg-theme theme-transition">
+    <div className="min-h-screen theme-transition">
       <div className="mx-auto max-w-7xl px-6 pt-32 sm:px-8 lg:px-12">
         <section className="mb-10">
           <h1 className="featured-stack-heading">All Projects</h1>

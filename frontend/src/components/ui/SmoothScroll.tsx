@@ -2,6 +2,10 @@
 
 import { useEffect } from 'react';
 import Lenis from 'lenis';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -11,17 +15,40 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       autoRaf: false,
     });
 
-    let animationFrameId: number;
+    ScrollTrigger.scrollerProxy(document.documentElement, {
+      scrollTop(value) {
+        if (arguments.length && typeof value === 'number') {
+          lenis.scrollTo(value, { immediate: true });
+        }
+        return lenis.scroll;
+      },
+      getBoundingClientRect() {
+        return {
+          top: 0,
+          left: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        };
+      },
+    });
 
+    lenis.on('scroll', ScrollTrigger.update);
+
+    const onRefresh = () => lenis.resize();
+    ScrollTrigger.addEventListener('refresh', onRefresh);
+
+    let animationFrameId = 0;
     const raf = (time: number) => {
       lenis.raf(time);
       animationFrameId = requestAnimationFrame(raf);
     };
 
     animationFrameId = requestAnimationFrame(raf);
+    ScrollTrigger.refresh();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      ScrollTrigger.removeEventListener('refresh', onRefresh);
       lenis.destroy();
     };
   }, []);

@@ -498,6 +498,82 @@ html.light .services-main-image-badge {
   border-color: rgba(61, 42, 82, 0.12);
 }
 
+/* Scroll morph — Services → About portrait */
+.services-about-morph {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 45;
+  width: var(--morph-w, 0px);
+  height: var(--morph-h, 0px);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  contain: layout style paint;
+  transform: translate3d(var(--morph-x, 0px), var(--morph-y, 0px), 0) rotate(var(--morph-rotate, 0deg));
+  transform-origin: center center;
+}
+
+.services-about-morph.is-active {
+  opacity: 1;
+  visibility: visible;
+  will-change: transform;
+}
+
+.services-about-morph-layer--to {
+  opacity: var(--morph-progress, 0);
+  pointer-events: none;
+}
+
+.services-about-morph-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--morph-radius, 2rem);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 80px rgba(90, 63, 106, 0.22);
+  background: rgba(10, 6, 18, 0.2);
+  transform: translateZ(0);
+}
+
+.services-about-morph-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.services-about-morph-layer--from {
+  opacity: calc(1 - var(--morph-progress, 0));
+  pointer-events: none;
+}
+
+.services-about-morph-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0);
+}
+
+.services-about-morph-badge {
+  opacity: var(--morph-badge, 1);
+}
+
+.services-about-morph-dot {
+  opacity: var(--morph-dot, 0);
+}
+
+html.light .services-about-morph-inner {
+  border-color: rgba(61, 42, 82, 0.15);
+  box-shadow:
+    0 28px 70px rgba(61, 42, 82, 0.18),
+    0 0 0 1px rgba(61, 42, 82, 0.06) inset;
+}
+
 /* About section (home) — Portavia-style layout */
 .about-home-heading {
   font-family: var(--font-display);

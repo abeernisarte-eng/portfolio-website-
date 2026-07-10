@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,7 @@ import FadeIn from '@/components/ui/FadeIn';
 import HeroSection from '@/components/shared/HeroSection';
 import HomeGradient from '@/components/shared/HomeGradient';
 import ServicesAccordion from '@/components/shared/ServicesAccordion';
+import ServicesAboutImageMorph from '@/components/shared/ServicesAboutImageMorph';
 import FeaturedProjectsStack from '@/components/shared/FeaturedProjectsStack';
 import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
@@ -62,6 +63,16 @@ export default function Home() {
   const contactCta = getContent<typeof cmsDefaults.content['home.contactCta']>('home.contactCta');
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const servicesImageFrameRef = useRef<HTMLDivElement>(null);
+  const aboutImageFrameRef = useRef<HTMLDivElement>(null);
+
+  const servicesSection = getContent<{
+    mainImage?: string;
+    badgeLeft?: string;
+    badgeRight?: string;
+  }>('home.services');
+  const servicesMainImage = servicesSection.mainImage || '/images/services/main.jpg';
+  const aboutPortrait = about.portraitImage || '/images/about/portrait.jpg';
 
   const featuredProjects = (cms.projects as typeof fallbackData.projects).filter((p) => p.featured).slice(0, 4);
   const displayProjects = loading ? fallbackData.projects.filter((p) => p.featured).slice(0, 4) : featuredProjects.length ? featuredProjects : fallbackData.projects.filter((p) => p.featured).slice(0, 4);
@@ -95,11 +106,45 @@ export default function Home() {
         secondaryCtaHref={resolveResumeUrl(settings.resumeUrl as string)}
       />
 
-      <ServicesAccordion />
+      <ServicesAccordion imageFrameRef={servicesImageFrameRef} />
+
+      <ServicesAboutImageMorph
+        servicesImageSrc={servicesMainImage}
+        aboutImageSrc={aboutPortrait}
+        servicesImageFrameRef={servicesImageFrameRef}
+        aboutImageFrameRef={aboutImageFrameRef}
+        badgeLeft={servicesSection.badgeLeft || 'Design'}
+        badgeRight={servicesSection.badgeRight || 'Craft'}
+      />
 
       {/* About */}
       <section className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
-        <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+          <FadeIn delay={0.15} className="flex justify-center lg:justify-start">
+            <div className="about-home-image-wrap">
+              <motion.div
+                ref={aboutImageFrameRef}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.9, ease }}
+                className="about-home-image-frame"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={aboutPortrait}
+                  alt={settings.brandName || 'Portrait'}
+                  width={640}
+                  height={800}
+                  className="about-home-image"
+                  loading="eager"
+                  decoding="async"
+                />
+                <span className="about-home-image-dot" aria-hidden />
+              </motion.div>
+            </div>
+          </FadeIn>
+
           <div>
             <FadeIn>
               <h2 className="about-home-heading">{about.heading || 'About me'}</h2>
@@ -157,30 +202,6 @@ export default function Home() {
               </Link>
             </FadeIn>
           </div>
-
-          <FadeIn delay={0.15} className="flex justify-center lg:justify-end">
-            <div className="about-home-image-wrap">
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.9, ease }}
-                className="about-home-image-frame"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={about.portraitImage || '/images/about/portrait.jpg'}
-                  alt={settings.brandName || 'Portrait'}
-                  width={640}
-                  height={800}
-                  className="about-home-image"
-                  loading="eager"
-                  decoding="async"
-                />
-                <span className="about-home-image-dot" aria-hidden />
-              </motion.div>
-            </div>
-          </FadeIn>
         </div>
       </section>
 

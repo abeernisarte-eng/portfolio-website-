@@ -121,7 +121,11 @@ type ServiceItem = {
   items?: string[];
 };
 
-export default function ServicesAccordion() {
+type ServicesAccordionProps = {
+  imageFrameRef?: React.RefObject<HTMLDivElement | null>;
+};
+
+export default function ServicesAccordion({ imageFrameRef }: ServicesAccordionProps = {}) {
   const { cms, getContent } = useCms();
   const section = getContent<{
     heading?: string;
@@ -283,6 +287,7 @@ export default function ServicesAccordion() {
             <div className="services-main-image-glow" aria-hidden />
 
             <motion.div
+              ref={imageFrameRef}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}

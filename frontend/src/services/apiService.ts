@@ -162,7 +162,7 @@ export const fallbackData = {
       company: 'Techesthete',
       review: 'Abeer has an incredible eye for details. Her wireframes and Figma designs solved several customer onboarding problems on our latest dashboards.',
       rating: 5,
-      clientPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'
+      clientPhoto: '/images/testimonials/waseem-khan.jpg'
     },
     {
       id: 't2',
@@ -171,7 +171,7 @@ export const fallbackData = {
       company: 'EAS Tailor Systems',
       review: 'Working with Abeer was smooth. She structured our user flows perfectly, and the interactive mockup she built in Figma was a hit at our client presentation.',
       rating: 5,
-      clientPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80'
+      clientPhoto: '/images/testimonials/sardar-azam.jpg'
     }
   ],
   certificates: [

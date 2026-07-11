@@ -14,7 +14,7 @@ import FeaturedProjectsStack from '@/components/shared/FeaturedProjectsStack';
 import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
 import { normalizeHeroSettings } from '@/lib/heroContent';
-import { resolveResumeUrl } from '@/lib/resume';
+import { resolveImageUrl, DEFAULT_CONTACT_CTA_BACKGROUND } from '@/lib/resolveImageUrl';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -234,7 +234,18 @@ export default function Home() {
                     <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">&ldquo;{t.review}&rdquo;</p>
                     <footer className="mt-6 flex items-center gap-3">
                       <div className="relative h-10 w-10 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-                        <Image src={t.clientPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'} alt={t.clientName} fill className="object-cover" sizes="40px" />
+                        <Image
+                          src={
+                            resolveImageUrl(t.clientPhoto) ||
+                            (t.clientName === 'Sardar Azam'
+                              ? '/images/testimonials/sardar-azam.jpg'
+                              : '/images/testimonials/waseem-khan.jpg')
+                          }
+                          alt={t.clientName}
+                          fill
+                          className="object-cover"
+                          sizes="40px"
+                        />
                       </div>
                       <div>
                         <p className="text-sm font-semibold">{t.clientName}</p>
@@ -298,11 +309,12 @@ export default function Home() {
       <section className="relative overflow-hidden border-t border-[var(--border)]">
         <div className="absolute inset-0">
           <Image
-            src={contactCta.backgroundImage || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80'}
+            src={resolveImageUrl(contactCta.backgroundImage) || DEFAULT_CONTACT_CTA_BACKGROUND}
             alt=""
             fill
-            className="object-cover opacity-30"
+            className="object-cover opacity-40"
             sizes="100vw"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0612]/90 via-[#1E1228]/60 to-transparent" />
         </div>

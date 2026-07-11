@@ -82,7 +82,7 @@ export const cmsDefaults = {
       body: "Let's build something impactful together — whether it's your brand, your website, or your next big idea.",
       ctaLabel: 'Get in touch',
       ctaHref: '/contact',
-      backgroundImage: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80',
+      backgroundImage: '/images/contact/cta-background.jpg',
     },
   },
 };

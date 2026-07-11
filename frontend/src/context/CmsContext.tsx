@@ -4,8 +4,38 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { API_BASE_URL, fallbackData } from '@/services/apiService';
 import { cmsDefaults, type CmsBundle } from '@/lib/cmsDefaults';
 import { normalizeHeroSettings } from '@/lib/heroContent';
+import { resolveImageUrl } from '@/lib/resolveImageUrl';
 
-const emptyBundle: CmsBundle = {
+function normalizeTestimonials(testimonials: CmsBundle['testimonials']) {
+  return (testimonials as Array<Record<string, unknown>>).map((testimonial) => ({
+    ...testimonial,
+    clientPhoto: resolveImageUrl(String(testimonial.clientPhoto || '')) || testimonial.clientPhoto,
+  }));
+}
+
+function normalizeContent(content: Record<string, unknown>) {
+  const next = { ...content };
+  const contactCta = next['home.contactCta'];
+
+  if (contactCta && typeof contactCta === 'object') {
+    const cta = { ...(contactCta as Record<string, unknown>) };
+    cta.backgroundImage =
+      resolveImageUrl(String(cta.backgroundImage || '')) || cta.backgroundImage;
+    next['home.contactCta'] = cta;
+  }
+
+  return next;
+}
+
+function normalizeBundle(bundle: CmsBundle): CmsBundle {
+  return {
+    ...bundle,
+    content: normalizeContent(bundle.content),
+    testimonials: normalizeTestimonials(bundle.testimonials),
+  };
+}
+
+const emptyBundle: CmsBundle = normalizeBundle({
   settings: { ...cmsDefaults.settings, ...fallbackData.settings },
   content: { ...cmsDefaults.content },
   projects: fallbackData.projects,
@@ -15,7 +45,7 @@ const emptyBundle: CmsBundle = {
   certificates: fallbackData.certificates,
   skills: fallbackData.skills,
   education: [],
-};
+});
 
 type CmsContextValue = {
   cms: CmsBundle;
@@ -41,17 +71,19 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch(`${API_BASE_URL}/cms`, { cache: 'no-store' });
       if (!res.ok) throw new Error('CMS fetch failed');
       const data = await res.json();
-      setCms({
-        settings: normalizeHeroSettings({ ...cmsDefaults.settings, ...data.settings }),
-        content: { ...cmsDefaults.content, ...data.content },
-        projects: data.projects?.length ? data.projects : emptyBundle.projects,
-        testimonials: data.testimonials?.length ? data.testimonials : emptyBundle.testimonials,
-        services: data.services?.length ? data.services : emptyBundle.services,
-        experiences: data.experiences?.length ? data.experiences : emptyBundle.experiences,
-        certificates: data.certificates?.length ? data.certificates : emptyBundle.certificates,
-        skills: data.skills?.length ? data.skills : emptyBundle.skills,
-        education: data.education ?? [],
-      });
+      setCms(
+        normalizeBundle({
+          settings: normalizeHeroSettings({ ...cmsDefaults.settings, ...data.settings }),
+          content: { ...cmsDefaults.content, ...data.content },
+          projects: data.projects?.length ? data.projects : emptyBundle.projects,
+          testimonials: data.testimonials?.length ? data.testimonials : emptyBundle.testimonials,
+          services: data.services?.length ? data.services : emptyBundle.services,
+          experiences: data.experiences?.length ? data.experiences : emptyBundle.experiences,
+          certificates: data.certificates?.length ? data.certificates : emptyBundle.certificates,
+          skills: data.skills?.length ? data.skills : emptyBundle.skills,
+          education: data.education ?? [],
+        })
+      );
     } catch {
       setCms(emptyBundle);
     } finally {

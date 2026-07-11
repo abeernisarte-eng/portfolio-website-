@@ -7,6 +7,7 @@ import SiteChrome from '@/components/shared/SiteChrome';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { CmsProvider } from '@/context/CmsContext';
 import CmsHead from '@/components/shared/CmsHead';
+import { getSiteUrl } from '@/lib/siteUrl';
 import './globals.css';
 
 const inter = Inter({
@@ -25,7 +26,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: 'Abeer Nisar | UI/UX Designer Portfolio',
   description: 'Portfolio of Abeer Nisar — UI/UX designer crafting meaningful digital experiences.',
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL(getSiteUrl()),
 };
 
 export default function RootLayout({

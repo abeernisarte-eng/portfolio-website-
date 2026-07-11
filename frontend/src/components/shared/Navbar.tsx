@@ -26,22 +26,21 @@ export default function Navbar() {
   const brandName = settings.brandName || 'Abeer Nisar';
   const contactEmail = settings.contactEmail || 'abeernisar11@gmail.com';
   const contactPhone = settings.contactPhone || '+92 302 4115583';
-  const isHome = pathname === '/';
-  const isHomeScrolled = isHome && scrolled;
-  const onHero = isHome && !isHomeScrolled;
+  const onHero = !scrolled;
+  const useSolidHeader = scrolled;
+
+  const getScrollY = () =>
+    document.documentElement.scrollTop || window.scrollY || 0;
 
   useEffect(() => {
-    const handleScroll = () => {
-      const y = document.documentElement.scrollTop || window.scrollY;
-      setScrolled(y > 30);
-    };
+    const handleScroll = () => setScrolled(getScrollY() > 30);
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    setScrolled((document.documentElement.scrollTop || window.scrollY) > 30);
+    setScrolled(getScrollY() > 30);
     setIsOpen(false);
   }, [pathname]);
 
@@ -59,8 +58,8 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`site-header fixed inset-x-0 top-0 z-50 px-6 py-6 transition-[background-color,backdrop-filter] duration-500 sm:px-10 lg:px-14 ${
-          isHomeScrolled ? 'site-header--solid' : 'site-header--overlay'
+        className={`site-header fixed inset-x-0 top-0 z-50 px-6 py-6 transition-[background-color,backdrop-filter,box-shadow,border-color] duration-500 sm:px-10 lg:px-14 ${
+          useSolidHeader ? 'site-header--solid' : 'site-header--overlay'
         }`}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">

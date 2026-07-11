@@ -33,6 +33,7 @@
     --font-display: var(--font-display, 'Space Grotesk', sans-serif);
     --font-body: var(--font-inter, 'Inter', sans-serif);
     --theme-transition: background-color 0.55s ease, color 0.45s ease, border-color 0.55s ease;
+    --site-header-height: 5.5rem;
   }
 
   html.light {
@@ -63,7 +64,7 @@
   }
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--site-header-height); }
 html, body { transition: var(--theme-transition); }
 
 body {
@@ -80,15 +81,29 @@ body {
 .font-display { font-family: var(--font-display) !important; }
 .font-body { font-family: var(--font-body) !important; }
 
-/* Site header — overlay on inner pages; home becomes solid after scroll */
+/* Site header — overlay on home hero; solid when scrolled or on inner pages */
+.site-header {
+  isolation: isolate;
+}
+
 .site-header--overlay {
   background: transparent;
 }
 
 .site-header--solid {
-  background: color-mix(in srgb, var(--background) 82%, transparent);
+  background: color-mix(in srgb, var(--background) 94%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+html.light .site-header--solid {
+  box-shadow: 0 8px 32px rgba(61, 42, 82, 0.08);
+}
+
+section {
+  scroll-margin-top: calc(var(--site-header-height) + 0.5rem);
 }
 
 /* Navbar logo — minimal softening in dark mode only (light mode unchanged) */
@@ -417,7 +432,7 @@ html.light p.obermann-hero-subtitle {
 @media (min-width: 1024px) {
   .services-main-image-wrap--sticky {
     position: sticky;
-    top: clamp(5rem, 12vh, 7.5rem);
+    top: calc(var(--site-header-height) + 1rem);
     align-self: flex-start;
   }
 }
@@ -849,7 +864,7 @@ html.light .about-home-image-dot {
 
 .featured-stack-item {
   position: sticky;
-  top: 5.5rem;
+  top: calc(var(--site-header-height) + 0.75rem);
   margin-bottom: 2.5rem;
   padding-bottom: 1rem;
 }

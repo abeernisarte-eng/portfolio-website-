@@ -34,7 +34,10 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
     ScrollTrigger.defaults({ scroller: document.documentElement });
 
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on('scroll', () => {
+      ScrollTrigger.update();
+      window.dispatchEvent(new Event('scroll'));
+    });
 
     const onRefresh = () => lenis.resize();
     ScrollTrigger.addEventListener('refresh', onRefresh);

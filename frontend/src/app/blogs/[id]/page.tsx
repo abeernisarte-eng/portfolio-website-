@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
+import CmsImage from '@/components/ui/CmsImage';
+import { DEFAULT_BLOG_COVER } from '@/lib/resolveImageUrl';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { Calendar, Eye, MessageSquare, ArrowLeft, Send } from 'lucide-react';
@@ -90,8 +91,9 @@ export default function BlogDetail() {
         <h1 className="text-3xl font-bold leading-tight sm:text-5xl">{blog.title}</h1>
 
         <div className="relative mt-8 aspect-[21/10] overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
-          <Image
-            src={blog.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80'}
+          <CmsImage
+            src={blog.coverImage}
+            fallback={DEFAULT_BLOG_COVER}
             alt={blog.title}
             fill
             className="object-cover"

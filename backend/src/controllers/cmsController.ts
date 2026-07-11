@@ -60,7 +60,7 @@ const defaultSiteContent: Record<string, unknown> = {
     backgroundImage: '/images/contact/cta-background.jpg',
   },
   'about.page': {
-    heroImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+    heroImage: '/images/about/portrait.jpg',
     heading: 'About me',
     bio: [
       "Hi, I'm Abeer — a UI/UX designer passionate about crafting meaningful and impactful digital experiences for ambitious brands and startups.",

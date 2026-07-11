@@ -15,6 +15,7 @@ import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
 import { normalizeHeroSettings } from '@/lib/heroContent';
 import { resolveImageUrl, DEFAULT_CONTACT_CTA_BACKGROUND } from '@/lib/resolveImageUrl';
+import { resolveResumeUrl } from '@/lib/resume';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import CmsImage from '@/components/ui/CmsImage';
+import { DEFAULT_BLOG_COVER } from '@/lib/resolveImageUrl';
 import { motion } from 'framer-motion';
 import { Search, Calendar, Eye, MessageSquare, ArrowUpRight } from 'lucide-react';
 import { apiService } from '@/services/apiService';
@@ -98,8 +99,9 @@ export default function Blogs() {
                 >
                   <Link href={`/blogs/${blog.id}`}>
                     <div className="relative mb-6 aspect-[16/10] overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
-                      <Image
-                        src={blog.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'}
+                      <CmsImage
+                        src={blog.coverImage}
+                        fallback={DEFAULT_BLOG_COVER}
                         alt={blog.title}
                         fill
                         className="object-cover transition duration-500 group-hover:scale-[1.03]"

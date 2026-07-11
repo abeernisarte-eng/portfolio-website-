@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import CmsImage from '@/components/ui/CmsImage';
+import { DEFAULT_ABOUT_PORTRAIT } from '@/lib/resolveImageUrl';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { GraduationCap, Briefcase, ExternalLink } from 'lucide-react';
@@ -52,7 +53,7 @@ export default function About() {
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <section className="mb-24 grid gap-16 lg:grid-cols-2 lg:items-start">
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
-            <Image src={page.heroImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80'} alt={settings.brandName || 'Portrait'} fill className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
+            <CmsImage src={page.heroImage} fallback={DEFAULT_ABOUT_PORTRAIT} alt={settings.brandName || 'Portrait'} fill className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
           </div>
           <div>
             <h1 className="brand-heading mb-6">{page.heading || 'About me'}</h1>
@@ -131,7 +132,7 @@ export default function About() {
                 className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
               >
                 <div className="relative aspect-[3/2] bg-[var(--surface-muted)]">
-                  <Image src={cert.image || 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=500&q=80'} alt={cert.title} fill className="object-cover transition group-hover:scale-105" sizes="25vw" />
+                  <CmsImage src={cert.image} fallback="/images/certificates/seo-graphic-design.jpg" alt={cert.title} fill className="object-cover transition group-hover:scale-105" sizes="25vw" />
                 </div>
                 <div className="p-5">
                   <span className="text-xs text-[#999]">{cert.issueDate}</span>

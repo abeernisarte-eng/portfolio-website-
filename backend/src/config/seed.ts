@@ -151,28 +151,28 @@ async function main() {
         title: 'SEO & Graphic Design – Professional Course',
         issuer: 'PITB / Tech Academy',
         issueDate: '2024',
-        image: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=500&q=80',
+        image: '/images/certificates/seo-graphic-design.jpg',
         credentialUrl: '#'
       },
       {
         title: 'MERN Stack with AI – Workshop',
         issuer: 'University of Education',
         issueDate: '2025',
-        image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=500&q=80',
+        image: '/images/certificates/mern-ai-workshop.jpg',
         credentialUrl: '#'
       },
       {
         title: 'Full Stack Software Development – Workshop',
         issuer: 'National IT Board',
         issueDate: '2025',
-        image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=500&q=80',
+        image: '/images/certificates/fullstack-dev.jpg',
         credentialUrl: '#'
       },
       {
         title: 'Full Stack Blockchain Technology – Workshop',
         issuer: 'BlockLabs Academy',
         issueDate: '2024',
-        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=500&q=80',
+        image: '/images/certificates/blockchain-workshop.jpg',
         credentialUrl: '#'
       }
     ]
@@ -258,7 +258,7 @@ async function main() {
       title: 'The Art of Minimalist UI/UX: Less is More',
       category: 'UI/UX Design',
       tags: ['Design System', 'Minimalism', 'Figma', 'UI Trends'],
-      coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      coverImage: '/images/blogs/minimalist-uiux.jpg',
       status: 'PUBLISHED',
       views: 120,
       content: 'Minimalism in UI design is not just about reducing elements, it is about magnifying user focus. When we strip away borders, heavy drop shadows, and unnecessary decorations, the core content and primary actions naturally stand out. As designers, we must learn to trust empty space (whitespace). Generous padding and consistent grids make layouts feel premium and luxurious, similar to the packaging of an Apple iPhone. In Figma, we can practice this by utilizing auto-layouts with fixed step paddings (8px, 16px, 24px) and maintaining a strict text hierarchy with Outfit or Inter typeface families.',
@@ -270,7 +270,7 @@ async function main() {
       title: 'Building a Design Handoff System Developers Love',
       category: 'Design Systems',
       tags: ['Figma', 'Productivity', 'Handoff', 'UX Guidelines'],
-      coverImage: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80',
+      coverImage: '/images/blogs/design-handoff.jpg',
       status: 'PUBLISHED',
       views: 95,
       content: 'One of the largest friction points in product development is the handoff from designers to developers. An organized Figma file makes a massive difference. By using local variable libraries for tokens, documenting responsive layouts for mobile/tablet/desktop, and labeling component states (hover, active, disabled), developers can inspect elements and build them exactly as designed. In this article, we outline a step-by-step framework to format Figma files, build component kits, and write design specs that ensure pixel-perfect conversion.',

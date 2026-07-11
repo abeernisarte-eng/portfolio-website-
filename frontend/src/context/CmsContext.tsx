@@ -24,7 +24,24 @@ function normalizeContent(content: Record<string, unknown>) {
     next['home.contactCta'] = cta;
   }
 
+  const aboutPage = next['about.page'];
+  if (aboutPage && typeof aboutPage === 'object') {
+    const page = { ...(aboutPage as Record<string, unknown>) };
+    page.heroImage =
+      resolveImageUrl(String(page.heroImage || '')) || '/images/about/portrait.jpg';
+    next['about.page'] = page;
+  }
+
   return next;
+}
+
+function normalizeCertificates(certificates: CmsBundle['certificates']) {
+  return (certificates as Array<Record<string, unknown>>).map((certificate) => ({
+    ...certificate,
+    image:
+      resolveImageUrl(String(certificate.image || '')) ||
+      '/images/certificates/seo-graphic-design.jpg',
+  }));
 }
 
 function normalizeBundle(bundle: CmsBundle): CmsBundle {
@@ -32,6 +49,7 @@ function normalizeBundle(bundle: CmsBundle): CmsBundle {
     ...bundle,
     content: normalizeContent(bundle.content),
     testimonials: normalizeTestimonials(bundle.testimonials),
+    certificates: normalizeCertificates(bundle.certificates),
   };
 }
 

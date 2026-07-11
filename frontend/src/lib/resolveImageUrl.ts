@@ -9,7 +9,43 @@ const LOCAL_IMAGE_FALLBACKS: Record<string, string> = {
     '/images/testimonials/sardar-azam.jpg',
   'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80':
     '/images/contact/cta-background.jpg',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80':
+    '/images/about/portrait.jpg',
+  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80':
+    '/images/blogs/minimalist-uiux.jpg',
+  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80':
+    '/images/blogs/minimalist-uiux.jpg',
+  'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80':
+    '/images/blogs/design-handoff.jpg',
+  'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80':
+    '/images/blogs/design-handoff.jpg',
+  'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=500&q=80':
+    '/images/certificates/seo-graphic-design.jpg',
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=500&q=80':
+    '/images/certificates/mern-ai-workshop.jpg',
+  'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=500&q=80':
+    '/images/certificates/blockchain-workshop.jpg',
 };
+
+const UPLOAD_HINTS: Array<{ match: RegExp; path: string }> = [
+  { match: /waseem/i, path: '/images/testimonials/waseem-khan.jpg' },
+  { match: /sardar/i, path: '/images/testimonials/sardar-azam.jpg' },
+  { match: /cta|contact|footer|work-together/i, path: '/images/contact/cta-background.jpg' },
+  { match: /portrait|about|hero/i, path: '/images/about/portrait.jpg' },
+  { match: /minimal|uiux|ui-ux/i, path: '/images/blogs/minimalist-uiux.jpg' },
+  { match: /handoff|mern|developer/i, path: '/images/blogs/design-handoff.jpg' },
+  { match: /seo|graphic/i, path: '/images/certificates/seo-graphic-design.jpg' },
+  { match: /blockchain/i, path: '/images/certificates/blockchain-workshop.jpg' },
+  { match: /fullstack|full-stack|software/i, path: '/images/certificates/fullstack-dev.jpg' },
+  { match: /workshop|mern|education/i, path: '/images/certificates/mern-ai-workshop.jpg' },
+];
+
+function mapUploadPath(fileName: string) {
+  for (const hint of UPLOAD_HINTS) {
+    if (hint.match.test(fileName)) return hint.path;
+  }
+  return '';
+}
 
 export function resolveImageUrl(url?: string | null) {
   if (!url) return '';
@@ -21,20 +57,26 @@ export function resolveImageUrl(url?: string | null) {
 
   if (trimmed.startsWith('/uploads/')) {
     const fileName = trimmed.split('/').pop() || '';
-    if (fileName.includes('waseem')) return '/images/testimonials/waseem-khan.jpg';
-    if (fileName.includes('sardar')) return '/images/testimonials/sardar-azam.jpg';
-    if (fileName.includes('cta') || fileName.includes('contact') || fileName.includes('footer')) {
-      return '/images/contact/cta-background.jpg';
-    }
-    return '';
+    return mapUploadPath(fileName);
   }
 
   if (LOCAL_IMAGE_FALLBACKS[trimmed]) {
     return LOCAL_IMAGE_FALLBACKS[trimmed];
   }
 
+  if (trimmed.startsWith('https://images.unsplash.com/')) {
+    const withoutQuery = trimmed.split('?')[0];
+    const match = Object.entries(LOCAL_IMAGE_FALLBACKS).find(([key]) => key.startsWith(withoutQuery));
+    if (match) return match[1];
+    return '';
+  }
+
   if (trimmed.startsWith('http://localhost:') || trimmed.startsWith('https://localhost:')) {
     return '';
+  }
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
   }
 
   return trimmed;
@@ -46,3 +88,5 @@ export const DEFAULT_TESTIMONIAL_PHOTOS = {
 } as const;
 
 export const DEFAULT_CONTACT_CTA_BACKGROUND = '/images/contact/cta-background.jpg';
+export const DEFAULT_ABOUT_PORTRAIT = '/images/about/portrait.jpg';
+export const DEFAULT_BLOG_COVER = '/images/blogs/minimalist-uiux.jpg';

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import SmoothScroll from '@/components/ui/SmoothScroll';
@@ -37,9 +36,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <body className="font-body bg-theme text-[var(--foreground)] antialiased theme-transition">
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`(function(){try{var p=location.pathname;if(localStorage.getItem('theme')==='light')document.documentElement.classList.add('light');if(!/^\\/admin(?:\\/|$)/.test(p))document.documentElement.classList.add('site-gradient');}catch(e){}})();`}
-        </Script>
         <ThemeProvider>
           <CmsProvider>
             <CmsHead />

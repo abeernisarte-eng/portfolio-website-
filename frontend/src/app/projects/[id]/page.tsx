@@ -233,7 +233,7 @@ export default function ProjectDetail() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {project.images.slice(1).map((imgUrl: string, idx: number) => (
                 <div key={idx} className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-900 bg-zinc-950">
-                  <Image src={imgUrl} alt={`Gallery ${idx + 1}`} fill className="object-cover" sizes="(max-w-720px) 100vw, 50vw" />
+                  <Image src={resolveImageUrl(imgUrl) || '/images/projects/protego-os.jpg'} alt={`Gallery ${idx + 1}`} fill className="object-cover" sizes="(max-w-720px) 100vw, 50vw" />
                 </div>
               ))}
             </div>

@@ -4,13 +4,22 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { API_BASE_URL, fallbackData } from '@/services/apiService';
 import { cmsDefaults, type CmsBundle } from '@/lib/cmsDefaults';
 import { normalizeHeroSettings } from '@/lib/heroContent';
-import { resolveImageUrl } from '@/lib/resolveImageUrl';
+import { resolveImageUrl, DEFAULT_TESTIMONIAL_PHOTOS } from '@/lib/resolveImageUrl';
 
 function normalizeTestimonials(testimonials: CmsBundle['testimonials']) {
-  return (testimonials as Array<Record<string, unknown>>).map((testimonial) => ({
-    ...testimonial,
-    clientPhoto: resolveImageUrl(String(testimonial.clientPhoto || '')) || testimonial.clientPhoto,
-  }));
+  return (testimonials as Array<Record<string, unknown>>).map((testimonial) => {
+    const clientName = String(testimonial.clientName || '');
+    const resolved = resolveImageUrl(String(testimonial.clientPhoto || ''));
+    const fallback =
+      clientName === 'Sardar Azam'
+        ? DEFAULT_TESTIMONIAL_PHOTOS.sardar
+        : DEFAULT_TESTIMONIAL_PHOTOS.waseem;
+
+    return {
+      ...testimonial,
+      clientPhoto: resolved || fallback,
+    };
+  });
 }
 
 function normalizeContent(content: Record<string, unknown>) {
@@ -75,11 +84,26 @@ function normalizeProjects(projects: CmsBundle['projects']) {
   });
 }
 
+function normalizeServices(services: CmsBundle['services']) {
+  return (services as Array<Record<string, unknown>>).map((service, index) => ({
+    ...service,
+    previewImage:
+      resolveImageUrl(String(service.previewImage || '')) ||
+      [
+        '/images/services/ui-ux.jpg',
+        '/images/services/graphic-design.jpg',
+        '/images/services/web-design.jpg',
+        '/images/services/branding.jpg',
+      ][index % 4],
+  }));
+}
+
 function normalizeBundle(bundle: CmsBundle): CmsBundle {
   return {
     ...bundle,
     content: normalizeContent(bundle.content),
     projects: normalizeProjects(bundle.projects),
+    services: normalizeServices(bundle.services),
     testimonials: normalizeTestimonials(bundle.testimonials),
     certificates: normalizeCertificates(bundle.certificates),
   };

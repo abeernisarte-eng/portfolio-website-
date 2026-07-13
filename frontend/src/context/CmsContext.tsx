@@ -24,6 +24,22 @@ function normalizeContent(content: Record<string, unknown>) {
     next['home.contactCta'] = cta;
   }
 
+  const aboutHome = next['home.about'];
+  if (aboutHome && typeof aboutHome === 'object') {
+    const about = { ...(aboutHome as Record<string, unknown>) };
+    about.portraitImage =
+      resolveImageUrl(String(about.portraitImage || '')) || '/images/about/portrait.jpg';
+    next['home.about'] = about;
+  }
+
+  const servicesHome = next['home.services'];
+  if (servicesHome && typeof servicesHome === 'object') {
+    const services = { ...(servicesHome as Record<string, unknown>) };
+    services.mainImage =
+      resolveImageUrl(String(services.mainImage || '')) || '/images/services/main.jpg';
+    next['home.services'] = services;
+  }
+
   const aboutPage = next['about.page'];
   if (aboutPage && typeof aboutPage === 'object') {
     const page = { ...(aboutPage as Record<string, unknown>) };
@@ -44,10 +60,26 @@ function normalizeCertificates(certificates: CmsBundle['certificates']) {
   }));
 }
 
+function normalizeProjects(projects: CmsBundle['projects']) {
+  return (projects as Array<Record<string, unknown>>).map((project) => {
+    const images = Array.isArray(project.images)
+      ? project.images
+          .map((image) => resolveImageUrl(String(image || '')))
+          .filter(Boolean)
+      : [];
+
+    return {
+      ...project,
+      images: images.length ? images : project.images,
+    };
+  });
+}
+
 function normalizeBundle(bundle: CmsBundle): CmsBundle {
   return {
     ...bundle,
     content: normalizeContent(bundle.content),
+    projects: normalizeProjects(bundle.projects),
     testimonials: normalizeTestimonials(bundle.testimonials),
     certificates: normalizeCertificates(bundle.certificates),
   };

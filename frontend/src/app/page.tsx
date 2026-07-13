@@ -73,8 +73,10 @@ export default function Home() {
     badgeLeft?: string;
     badgeRight?: string;
   }>('home.services');
-  const servicesMainImage = servicesSection.mainImage || '/images/services/main.jpg';
-  const aboutPortrait = about.portraitImage || '/images/about/portrait.jpg';
+  const servicesMainImage =
+    resolveImageUrl(servicesSection.mainImage) || '/images/services/main.jpg';
+  const aboutPortrait =
+    resolveImageUrl(about.portraitImage) || '/images/about/portrait.jpg';
   const aboutBioParagraphs = Array.isArray(about.bio)
     ? about.bio.filter(Boolean)
     : String(about.bio || '')

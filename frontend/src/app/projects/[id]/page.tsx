@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowUpRight, CheckCircle, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { apiService } from '@/services/apiService';
+import { resolveImageUrl } from '@/lib/resolveImageUrl';
 import MagneticButton from '@/components/ui/MagneticButton';
 
 const FigmaIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
@@ -131,7 +132,7 @@ export default function ProjectDetail() {
           {/* Banner cover aspect-ratio */}
           <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900 shadow-2xl">
             <Image
-              src={project.images[0] || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80'}
+              src={resolveImageUrl(project.images?.[0]) || '/images/projects/protego-os.jpg'}
               alt={project.title}
               fill
               className="object-cover"

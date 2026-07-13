@@ -11,6 +11,7 @@ import {
 import { ChevronUp } from 'lucide-react';
 import FadeIn from '@/components/ui/FadeIn';
 import { useCms } from '@/context/CmsContext';
+import { resolveImageUrl } from '@/lib/resolveImageUrl';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const PREVIEW_OFFSET = 28;
@@ -80,7 +81,9 @@ const PREVIEW_FALLBACKS = [
 ];
 
 function resolvePreviewImage(service: ServiceItem, index: number): string {
-  if (service.previewImage) return service.previewImage;
+  if (service.previewImage) {
+    return resolveImageUrl(service.previewImage) || service.previewImage;
+  }
   if (PREVIEW_BY_TITLE[service.title]) return PREVIEW_BY_TITLE[service.title];
   return PREVIEW_FALLBACKS[index % PREVIEW_FALLBACKS.length];
 }
@@ -149,7 +152,7 @@ export default function ServicesAccordion({
     : DEFAULT_SERVICES;
 
   const services = apiServices;
-  const mainImage = section.mainImage || '/images/services/main.jpg';
+  const mainImage = resolveImageUrl(section.mainImage) || '/images/services/main.jpg';
   const heading = section.heading || 'What I can do for you';
   const intro = section.intro || 'As a digital designer, I am a visual storyteller, crafting experiences that connect deeply and spark creativity.';
   const badgeLeft = section.badgeLeft || 'Design';

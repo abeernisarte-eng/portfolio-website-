@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import FadeIn from '@/components/ui/FadeIn';
+import { resolveImageUrl } from '@/lib/resolveImageUrl';
 
 interface Project {
   id: string;
@@ -42,8 +43,8 @@ function StackCard({
   const y = useTransform(scrollYProgress, [0, 1], [0, index === total - 1 ? 0 : -28]);
 
   const imageSrc =
-    project.images?.[0] ||
-    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80';
+    resolveImageUrl(project.images?.[0]) ||
+    '/images/projects/protego-os.jpg';
 
   return (
     <div

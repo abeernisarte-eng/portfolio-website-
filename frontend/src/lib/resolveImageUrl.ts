@@ -27,7 +27,21 @@ const LOCAL_IMAGE_FALLBACKS: Record<string, string> = {
     '/images/certificates/blockchain-workshop.jpg',
 };
 
+const PROJECT_IMAGE_MAP: Record<string, string> = {
+  'protego-os': '/images/projects/protego-os.jpg',
+  protego: '/images/projects/protego-os.jpg',
+  nextlevel: '/images/projects/nextlevel.jpg',
+  'nextlevel-platform': '/images/projects/nextlevel.jpg',
+  appealsdr: '/images/projects/appealsdr.jpg',
+  maubrand: '/images/projects/maubrand.jpg',
+  'maubrand-analytics': '/images/projects/maubrand.jpg',
+};
+
 const UPLOAD_HINTS: Array<{ match: RegExp; path: string }> = [
+  { match: /protego/i, path: '/images/projects/protego-os.jpg' },
+  { match: /nextlevel/i, path: '/images/projects/nextlevel.jpg' },
+  { match: /appealsdr/i, path: '/images/projects/appealsdr.jpg' },
+  { match: /maubrand/i, path: '/images/projects/maubrand.jpg' },
   { match: /waseem/i, path: '/images/testimonials/waseem-khan.jpg' },
   { match: /sardar/i, path: '/images/testimonials/sardar-azam.jpg' },
   { match: /cta|contact|footer|work-together/i, path: '/images/contact/cta-background.jpg' },
@@ -41,10 +55,20 @@ const UPLOAD_HINTS: Array<{ match: RegExp; path: string }> = [
 ];
 
 function mapUploadPath(fileName: string) {
+  const stem = fileName.replace(/\.(png|jpe?g|webp|gif)$/i, '').toLowerCase();
+  if (PROJECT_IMAGE_MAP[stem]) return PROJECT_IMAGE_MAP[stem];
+
   for (const hint of UPLOAD_HINTS) {
     if (hint.match.test(fileName)) return hint.path;
   }
   return '';
+}
+
+function normalizeProjectImagePath(url: string) {
+  if (url.startsWith('/images/projects/') && url.endsWith('.png')) {
+    return url.replace(/\.png$/i, '.jpg');
+  }
+  return url;
 }
 
 export function resolveImageUrl(url?: string | null) {
@@ -53,7 +77,9 @@ export function resolveImageUrl(url?: string | null) {
   const trimmed = url.trim();
   if (!trimmed) return '';
 
-  if (trimmed.startsWith('/images/')) return trimmed;
+  if (trimmed.startsWith('/images/')) {
+    return normalizeProjectImagePath(trimmed);
+  }
 
   if (trimmed.startsWith('/uploads/')) {
     const fileName = trimmed.split('/').pop() || '';

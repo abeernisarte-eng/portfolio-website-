@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   title: 'Abeer Nisar | UI/UX Designer Portfolio',
   description: 'Portfolio of Abeer Nisar — UI/UX designer crafting meaningful digital experiences.',
   metadataBase: new URL(getSiteUrl()),
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-touch-icon.svg', type: 'image/svg+xml' }],
+  },
 };
 
 export default function RootLayout({

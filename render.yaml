@@ -1,0 +1,25 @@
+# Deploy backend on Render: Dashboard → New → Blueprint → connect this repo.
+# You also need a free PostgreSQL database from Neon (https://neon.tech).
+# Paste the Neon connection string into DATABASE_URL when prompted.
+
+services:
+  - type: web
+    name: portfolio-backend
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start:production
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://uiuxbyabeer-design-by-abeer.vercel.app
+      - key: NODE_ENV
+        value: production
+      - key: SEED_DATABASE
+        value: "true"

@@ -2,6 +2,24 @@ import type { NextConfig } from "next";
 
 const isVercel = process.env.VERCEL === "1";
 
+function getBackendImagePattern() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) return null;
+
+  try {
+    const { protocol, hostname } = new URL(apiUrl);
+    if (protocol !== "https:" && protocol !== "http:") return null;
+    return {
+      protocol: protocol.replace(":", "") as "http" | "https",
+      hostname,
+    };
+  } catch {
+    return null;
+  }
+}
+
+const backendImagePattern = getBackendImagePattern();
+
 const nextConfig: NextConfig = {
   async rewrites() {
     if (isVercel) return [];
@@ -32,6 +50,7 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         port: "5100",
       },
+      ...(backendImagePattern ? [backendImagePattern] : []),
     ],
   },
   experimental: {

@@ -20,12 +20,18 @@ app.use(helmet({
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3100',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
 ].filter(Boolean) as string[];
+
+const vercelOriginPattern = /^https:\/\/[\w-]+\.vercel\.app$/;
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      vercelOriginPattern.test(origin)
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

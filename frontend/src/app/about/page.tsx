@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import CmsImage from '@/components/ui/CmsImage';
-import { DEFAULT_ABOUT_PORTRAIT } from '@/lib/resolveImageUrl';
+import { DEFAULT_ABOUT_PORTRAIT, resolveImageUrl } from '@/lib/resolveImageUrl';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { GraduationCap, Briefcase, ExternalLink } from 'lucide-react';
@@ -23,6 +23,7 @@ export default function About() {
     ctaLabel?: string;
   }>('about.page');
   const settings = cms.settings as Record<string, string>;
+  const aboutPortrait = resolveImageUrl(page.heroImage) || DEFAULT_ABOUT_PORTRAIT;
 
   const experiences = (cms.experiences as typeof fallbackData.experiences).length
     ? (cms.experiences as typeof fallbackData.experiences)
@@ -51,9 +52,21 @@ export default function About() {
   return (
     <div className="min-h-screen theme-transition pb-24 pt-32">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
-        <section className="mb-24 grid gap-16 lg:grid-cols-2 lg:items-start">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
-            <CmsImage src={page.heroImage} fallback={DEFAULT_ABOUT_PORTRAIT} alt={settings.brandName || 'Portrait'} fill className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
+        <section className="mb-24 grid gap-16 lg:grid-cols-2 lg:items-center">
+          <div className="about-home-image-wrap mx-auto lg:mx-0">
+            <div className="about-home-image-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={aboutPortrait}
+                alt={settings.brandName || 'Portrait'}
+                width={640}
+                height={800}
+                className="about-home-image"
+                loading="eager"
+                decoding="async"
+              />
+              <span className="about-home-image-dot" aria-hidden />
+            </div>
           </div>
           <div>
             <h1 className="brand-heading mb-6">{page.heading || 'About me'}</h1>

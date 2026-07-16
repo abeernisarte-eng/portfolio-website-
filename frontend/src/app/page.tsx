@@ -76,7 +76,7 @@ export default function Home() {
   const servicesMainImage =
     resolveImageUrl(servicesSection.mainImage) || '/images/services/main.jpg';
   const aboutPortrait =
-    resolveImageUrl(about.portraitImage) || '/images/about/portrait.jpg';
+    resolveImageUrl(about.portraitImage) || '/images/about/abeer-portrait.jpg';
   const aboutBioParagraphs = Array.isArray(about.bio)
     ? about.bio.filter(Boolean)
     : String(about.bio || '')

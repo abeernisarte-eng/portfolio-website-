@@ -11,6 +11,7 @@ import HeroSection from '@/components/shared/HeroSection';
 import ServicesAccordion from '@/components/shared/ServicesAccordion';
 import ServicesAboutImageMorph from '@/components/shared/ServicesAboutImageMorph';
 import FeaturedProjectsStack from '@/components/shared/FeaturedProjectsStack';
+import TestimonialsStack from '@/components/shared/TestimonialsStack';
 import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
 import { normalizeHeroSettings } from '@/lib/heroContent';
@@ -229,36 +230,12 @@ export default function Home() {
               <h2 className="brand-heading mb-4">{testimonialsSection.heading}</h2>
               <p className="mb-16 max-w-2xl text-[var(--muted-foreground)]">{testimonialsSection.intro}</p>
             </FadeIn>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {displayTestimonials.map((t, idx) => (
-                <FadeIn key={t.id} delay={idx * 0.1}>
-                  <motion.blockquote whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className="glass-surface rounded-2xl border border-[var(--border)] p-8 theme-transition">
-                    <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">&ldquo;{t.review}&rdquo;</p>
-                    <footer className="mt-6 flex items-center gap-3">
-                      <div className="relative h-10 w-10 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-                        <Image
-                          src={
-                            resolveImageUrl(t.clientPhoto) ||
-                            (t.clientName === 'Sardar Azam'
-                              ? '/images/testimonials/sardar-azam.jpg'
-                              : '/images/testimonials/waseem-khan.jpg')
-                          }
-                          alt={t.clientName}
-                          fill
-                          className="object-cover"
-                          sizes="40px"
-                        />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold">{t.clientName}</p>
-                        <p className="text-xs text-[var(--muted)]">{t.clientRole}{t.company ? `, ${t.company}` : ''}</p>
-                      </div>
-                    </footer>
-                  </motion.blockquote>
-                </FadeIn>
-              ))}
-              <FadeIn delay={0.2}>
-                <div className="stat-card flex flex-col items-center justify-center rounded-2xl p-8 text-center md:col-span-2 lg:col-span-1 theme-transition">
+            <div className="testimonials-section-layout">
+              <FadeIn>
+                <TestimonialsStack testimonials={displayTestimonials} />
+              </FadeIn>
+              <FadeIn delay={0.15}>
+                <div className="stat-card flex flex-col items-center justify-center rounded-2xl p-8 text-center theme-transition">
                   <p className="text-sm opacity-60">{testimonialsSection.statCard?.prefix || "I've worked with"}</p>
                   <p className="portavia-stat mt-2">{displayTestimonials.length}+</p>
                   <p className="text-sm opacity-60">{testimonialsSection.statCard?.suffix || 'happy clients'}</p>

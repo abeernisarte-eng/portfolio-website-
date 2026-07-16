@@ -235,17 +235,19 @@ export default function Home() {
                 <TestimonialsStack testimonials={displayTestimonials} />
               </FadeIn>
               <FadeIn delay={0.15}>
-                <div className="stat-card flex flex-col items-center justify-center rounded-2xl p-8 text-center theme-transition">
-                  <p className="text-sm opacity-60">{testimonialsSection.statCard?.prefix || "I've worked with"}</p>
-                  <p className="portavia-stat mt-2">{displayTestimonials.length}+</p>
-                  <p className="text-sm opacity-60">{testimonialsSection.statCard?.suffix || 'happy clients'}</p>
-                  <div className="mt-8 grid w-full grid-cols-2 gap-6 border-t border-current/10 pt-8">
+                <div className="testimonials-stats-row theme-transition">
+                  <div className="testimonials-stats-main">
+                    <p className="text-sm opacity-60">{testimonialsSection.statCard?.prefix || "I've worked with"}</p>
+                    <p className="portavia-stat mt-1">{displayTestimonials.length}+</p>
+                    <p className="text-sm opacity-60">{testimonialsSection.statCard?.suffix || 'happy clients'}</p>
+                  </div>
+                  <div className="testimonials-stats-metrics">
                     {(testimonialsSection.statCard?.metrics || [
                       { value: '100%', label: 'Satisfaction Rate' },
                       { value: '2x', label: 'Faster Delivery' },
                     ]).map((m) => (
-                      <div key={m.label}>
-                        <p className="text-3xl font-semibold">{m.value}</p>
+                      <div key={m.label} className="testimonials-stats-metric">
+                        <p className="text-2xl font-semibold sm:text-3xl">{m.value}</p>
                         <p className="mt-1 text-xs opacity-50">{m.label}</p>
                       </div>
                     ))}

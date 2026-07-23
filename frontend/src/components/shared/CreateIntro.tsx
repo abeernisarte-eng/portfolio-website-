@@ -145,18 +145,21 @@ export default function CreateIntro() {
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
 
+    let skipped = false;
     try {
-      if (sessionStorage.getItem(SESSION_KEY) === '1') return;
+      if (sessionStorage.getItem(SESSION_KEY) === '1') skipped = true;
     } catch {
-      return;
+      skipped = true;
     }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (skipped || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       try {
         sessionStorage.setItem(SESSION_KEY, '1');
       } catch {
         /* ignore */
       }
+      // Ensure hero/other listeners never hang waiting for intro events
+      window.dispatchEvent(new Event('abeer-create-intro-done'));
       return;
     }
 
@@ -186,6 +189,8 @@ export default function CreateIntro() {
       window.clearTimeout(hideAt);
       document.documentElement.classList.remove('create-intro-active');
       document.body.classList.remove('create-intro-active');
+      // Strict-mode remount / early unmount — unblock waiting hero entrance
+      window.dispatchEvent(new Event('abeer-create-intro-done'));
     };
   }, []);
 

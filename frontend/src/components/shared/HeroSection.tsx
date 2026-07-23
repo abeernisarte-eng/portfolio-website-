@@ -24,16 +24,35 @@ interface HeroSectionProps {
   brandName?: string;
 }
 
+const CREATE_INTRO_SESSION_KEY = 'abeer-create-intro-seen';
+
 function useEntranceReady() {
   const reduceMotion = useReducedMotion();
   const [ready, setReady] = useState(false);
 
   useLayoutEffect(() => {
+    let cancelled = false;
+    const start = () => {
+      if (!cancelled) setReady(true);
+    };
+
     if (reduceMotion) {
-      setReady(true);
+      start();
       return;
     }
-    const start = () => setReady(true);
+
+    try {
+      if (sessionStorage.getItem(CREATE_INTRO_SESSION_KEY) === '1') {
+        start();
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+
+    // Failsafe: never leave hero content stuck at opacity 0
+    const failsafe = window.setTimeout(start, 5600);
+
     if (document.body.classList.contains('create-intro-active')) {
       window.addEventListener('abeer-create-intro-exit', start, { once: true });
       window.addEventListener('abeer-create-intro-done', start, { once: true });
@@ -42,13 +61,20 @@ function useEntranceReady() {
       });
       observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
       return () => {
+        cancelled = true;
+        window.clearTimeout(failsafe);
         window.removeEventListener('abeer-create-intro-exit', start);
         window.removeEventListener('abeer-create-intro-done', start);
         observer.disconnect();
       };
     }
+
     const frame = requestAnimationFrame(start);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(failsafe);
+      cancelAnimationFrame(frame);
+    };
   }, [reduceMotion]);
 
   return ready;

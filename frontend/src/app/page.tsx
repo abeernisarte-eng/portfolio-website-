@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,8 +8,8 @@ import { ArrowUpRight, Plus, Minus } from 'lucide-react';
 import { fallbackData } from '@/services/apiService';
 import FadeIn from '@/components/ui/FadeIn';
 import HeroSection from '@/components/shared/HeroSection';
-import ServicesAccordion from '@/components/shared/ServicesAccordion';
-import ServicesAboutImageMorph from '@/components/shared/ServicesAboutImageMorph';
+import JourneySection from '@/components/shared/JourneySection';
+import IntroStatementSection from '@/components/shared/IntroStatementSection';
 import FeaturedProjectsStack from '@/components/shared/FeaturedProjectsStack';
 import TestimonialsStack from '@/components/shared/TestimonialsStack';
 import { useCms } from '@/context/CmsContext';
@@ -64,18 +64,7 @@ export default function Home() {
   const contactCta = getContent<typeof cmsDefaults.content['home.contactCta']>('home.contactCta');
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const servicesImageFrameRef = useRef<HTMLDivElement>(null);
-  const servicesSectionRef = useRef<HTMLElement>(null);
-  const aboutSectionRef = useRef<HTMLElement>(null);
-  const aboutImageFrameRef = useRef<HTMLDivElement>(null);
 
-  const servicesSection = getContent<{
-    mainImage?: string;
-    badgeLeft?: string;
-    badgeRight?: string;
-  }>('home.services');
-  const servicesMainImage =
-    resolveImageUrl(servicesSection.mainImage) || '/images/services/main.jpg';
   const aboutPortrait =
     resolveImageUrl(about.portraitImage) || '/images/about/portrait.jpg';
   const aboutBioParagraphs = Array.isArray(about.bio)
@@ -105,7 +94,7 @@ export default function Home() {
   const hero = normalizeHeroSettings(settings);
 
   return (
-    <div className="landing-page theme-transition">
+    <div className="landing-page lab-landing theme-transition">
       <HeroSection
         eyebrow={hero.heroEyebrow as string || 'UI/UX DESIGNER • PRODUCT DESIGNER'}
         title={(hero.heroTitle as string) || cmsDefaults.settings.heroTitle}
@@ -114,33 +103,27 @@ export default function Home() {
         ctaHref={(hero.heroCtaHref as string) || '/projects'}
         secondaryCtaLabel={(hero.heroSecondaryCtaLabel as string) || 'Download Resume'}
         secondaryCtaHref={resolveResumeUrl(settings.resumeUrl as string)}
+        brandName={settings.brandName as string || cmsDefaults.settings.brandName}
+        stats={stats}
       />
 
-      <ServicesAccordion
-        imageFrameRef={servicesImageFrameRef}
-        sectionRef={servicesSectionRef}
-      />
-
-      <ServicesAboutImageMorph
-        servicesImageSrc={servicesMainImage}
-        aboutImageSrc={aboutPortrait}
-        servicesSectionRef={servicesSectionRef}
-        aboutSectionRef={aboutSectionRef}
-        servicesImageFrameRef={servicesImageFrameRef}
-        aboutImageFrameRef={aboutImageFrameRef}
-        badgeLeft={servicesSection.badgeLeft || 'Design'}
-        badgeRight={servicesSection.badgeRight || 'Craft'}
-      />
+      <JourneySection>
+        <IntroStatementSection
+          brandName={(settings.brandName as string) || cmsDefaults.settings.brandName}
+          ctaLabel={about.ctaLabel === 'My Story' ? 'About me' : about.ctaLabel || 'About me'}
+          ctaHref={about.ctaHref || '/about'}
+        />
+      </JourneySection>
 
       {/* About */}
+      <JourneySection>
       <section
-        ref={aboutSectionRef}
-        className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28"
+        className="lab-flow-section px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28"
       >
         <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
           <FadeIn delay={0.15} className="flex justify-center lg:justify-start">
             <div className="about-home-image-wrap">
-              <div ref={aboutImageFrameRef} className="about-home-image-frame">
+              <div className="about-home-image-frame">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={aboutPortrait}
@@ -215,16 +198,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </JourneySection>
 
-      <FeaturedProjectsStack
-        projects={displayProjects}
-        title={featured.title}
-        intro={featured.intro}
-        browseAllLabel={featured.browseAllLabel}
-      />
+      <JourneySection>
+        <FeaturedProjectsStack
+          projects={displayProjects}
+          title={featured.title}
+          intro={featured.intro}
+          browseAllLabel={featured.browseAllLabel}
+        />
+      </JourneySection>
 
       {displayTestimonials.length > 0 && (
-        <section className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
+        <JourneySection>
+        <section className="lab-flow-section px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <FadeIn>
               <h2 className="brand-heading mb-4">{testimonialsSection.heading}</h2>
@@ -257,15 +244,17 @@ export default function Home() {
             </div>
           </div>
         </section>
+        </JourneySection>
       )}
 
-      <section className="border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
+      <JourneySection>
+      <section className="lab-flow-section px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28">
         <div className="mx-auto max-w-3xl">
           <FadeIn className="text-center">
             <h2 className="brand-heading mb-4">{faqSection.heading || 'Frequently Asked Questions'}</h2>
             <p className="mb-12 text-[var(--muted-foreground)]">{faqSection.intro}</p>
           </FadeIn>
-          <div className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+          <div className="divide-y divide-[var(--border)] border-y border-[var(--border)] lab-glass-panel">
             {faqs.map((faq, idx) => (
               <div key={idx}>
                 <button onClick={() => setOpenFaq(openFaq === idx ? null : idx)} className="interactive-cursor flex w-full items-center justify-between gap-4 py-6 text-left transition-colors hover:opacity-80">
@@ -286,18 +275,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </JourneySection>
 
-      <section className="relative overflow-hidden border-t border-[var(--border)]">
+      <JourneySection>
+      <section className="lab-flow-section relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src={resolveImageUrl(contactCta.backgroundImage) || DEFAULT_CONTACT_CTA_BACKGROUND}
             alt=""
             fill
-            className="object-cover opacity-40"
+            className="object-cover opacity-20 mix-blend-luminosity"
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0612]/90 via-[#1E1228]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/40 to-[#050505]/88" />
         </div>
         <div className="relative px-6 py-24 sm:px-8 lg:px-12 lg:py-32">
           <FadeIn className="mx-auto max-w-3xl text-center">
@@ -310,6 +301,7 @@ export default function Home() {
           </FadeIn>
         </div>
       </section>
+      </JourneySection>
     </div>
   );
 }

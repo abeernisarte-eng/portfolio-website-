@@ -22,7 +22,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="px-6 py-16 theme-transition sm:px-8 lg:px-12"
+      className="border-t border-[var(--border)] bg-transparent px-6 py-16 theme-transition sm:px-8 lg:px-12"
     >
       <div className="mx-auto max-w-7xl">
         <FadeIn>
@@ -58,7 +58,7 @@ export default function Footer() {
           </div>
         </FadeIn>
 
-        <div className="mt-16 pt-8 text-xs text-[var(--muted)]">
+        <div className="mt-16 border-t border-[var(--border)] pt-8 text-xs text-[var(--muted)]">
           <p>{copyright.includes('©') ? copyright : `© ${copyright}`}</p>
         </div>
       </div>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X, Mail } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { ObermannLogo } from '@/components/ui/ObermannMark';
 import { useTheme } from '@/context/ThemeContext';
@@ -11,12 +12,11 @@ import { useCms } from '@/context/CmsContext';
 import { cmsDefaults } from '@/lib/cmsDefaults';
 
 const defaultNav = cmsDefaults.settings.navItems as { name: string; path: string }[];
-const ease = [0.16, 1, 0.3, 1] as const;
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === '/';
   const { cms } = useCms();
   const { theme, mounted: themeMounted } = useTheme();
   const settings = cms.settings as Record<string, string>;
@@ -25,30 +25,23 @@ export default function Navbar() {
     : defaultNav) as { name: string; path: string }[];
   const brandName = settings.brandName || 'Abeer Nisar';
   const contactEmail = settings.contactEmail || 'abeernisar11@gmail.com';
+  const onHero = !scrolled;
+  const useSolidHeader = scrolled;
+
+  const getScrollY = () =>
+    document.documentElement.scrollTop || window.scrollY || 0;
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const onOpen = () => setOpen(true);
-    window.addEventListener('abeer-open-nav', onOpen);
-    return () => window.removeEventListener('abeer-open-nav', onOpen);
+    const handleScroll = () => setScrolled(getScrollY() > 30);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
+    setScrolled(getScrollY() > 30);
+    setIsOpen(false);
+  }, [pathname]);
 
   const isActive = (path: string) => {
     if (path === '/') return pathname === '/';
@@ -56,88 +49,74 @@ export default function Navbar() {
     return pathname === path;
   };
 
+  const textCls = onHero ? 'text-white' : 'text-[var(--foreground)]';
+  const mutedCls = onHero ? 'text-white/75 hover:text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]';
+  const iconCls = onHero ? 'text-white/75 hover:text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]';
+  const dividerCls = onHero ? 'bg-white/20' : 'bg-[var(--border)]';
+
   return (
     <>
       <header
-        className={`lab-chrome ${isHome ? 'lab-chrome--figma-hero' : ''} ${open ? 'is-open' : ''}`}
-        aria-hidden={isHome ? true : undefined}
+        className={`site-header fixed inset-x-0 top-0 z-50 px-6 py-6 transition-[background-color,backdrop-filter,box-shadow,border-color] duration-500 sm:px-10 lg:px-14 ${
+          useSolidHeader ? 'site-header--solid' : 'site-header--overlay'
+        }`}
       >
-        {!isHome && (
-          <>
-            <Link
-              href="/"
-              className="lab-chrome-brand interactive-cursor"
-              onClick={() => setOpen(false)}
-            >
-              <ObermannLogo
-                size={16}
-                className={themeMounted && theme === 'dark' ? 'nav-logo-mark-dark' : ''}
-              />
-              <span className="lab-chrome-brand-name">{brandName}</span>
-            </Link>
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+          <Link href="/" className={`interactive-cursor flex items-center gap-2.5 ${textCls}`}>
+            <ObermannLogo
+              size={18}
+              className={themeMounted && theme === 'dark' ? 'nav-logo-mark-dark' : ''}
+            />
+            <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em]">
+              {brandName}
+            </span>
+          </Link>
 
-            <div className="lab-chrome-actions">
-              <ThemeToggle onHero={!themeMounted || theme === 'dark'} />
-              <button
-                type="button"
-                className={`lab-dot-menu interactive-cursor ${open ? 'is-open' : ''}`}
-                aria-expanded={open}
-                aria-controls="lab-nav-overlay"
-                aria-label={open ? 'Close navigation' : 'Open navigation'}
-                onClick={() => setOpen((v) => !v)}
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`interactive-cursor relative text-[0.8125rem] transition-colors ${
+                  isActive(item.path) ? textCls : mutedCls
+                }`}
               >
-                <i /><i /><i />
-              </button>
-            </div>
-          </>
-        )}
+                {item.name}
+                {isActive(item.path) && (
+                  <span className={`absolute -bottom-1 left-0 right-0 h-px ${onHero ? 'bg-white' : 'bg-[var(--foreground)]'}`} />
+                )}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-4">
+            <a href={`mailto:${contactEmail}`} className={`interactive-cursor hidden sm:block ${iconCls}`} aria-label="Email">
+              <Mail className="h-4 w-4" />
+            </a>
+            <span className={`hidden h-4 w-px sm:block ${dividerCls}`} />
+            <ThemeToggle onHero={onHero} />
+            <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden ${textCls}`} aria-label="Toggle menu">
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
       </header>
 
       <AnimatePresence>
-        {open && (
+        {isOpen && (
           <motion.div
-            id="lab-nav-overlay"
-            className="lab-nav"
-            initial={{ clipPath: 'circle(0% at calc(100% - 2.75rem) 2.75rem)' }}
-            animate={{ clipPath: 'circle(160% at calc(100% - 2.75rem) 2.75rem)' }}
-            exit={{ clipPath: 'circle(0% at calc(100% - 2.75rem) 2.75rem)' }}
-            transition={{ duration: 0.75, ease }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex flex-col bg-[var(--background)] px-6 py-8 md:hidden"
           >
-            <div className="lab-nav-mesh" aria-hidden />
-            <div className="lab-nav-grain" aria-hidden />
-
-            <nav className="lab-nav-list" aria-label="Primary">
+            <div className="mt-24 flex flex-col gap-6">
               {navItems.map((item, i) => (
-                <motion.div
-                  key={item.path}
-                  initial={{ opacity: 0, y: 36, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, y: 12 }}
-                  transition={{ duration: 0.5, delay: 0.12 + i * 0.06, ease }}
-                >
-                  <Link
-                    href={item.path}
-                    className={`lab-nav-link interactive-cursor ${isActive(item.path) ? 'is-active' : ''}`}
-                    onClick={() => setOpen(false)}
-                  >
-                    <span className="lab-nav-index">{String(i + 1).padStart(2, '0')}</span>
-                    <span className="lab-nav-label">{item.name}</span>
-                  </Link>
+                <motion.div key={item.path} initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: i * 0.05 }}>
+                  <Link href={item.path} className="text-2xl font-medium text-[var(--foreground)]">{item.name}</Link>
                 </motion.div>
               ))}
-            </nav>
-
-            <motion.div
-              className="lab-nav-meta"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45, duration: 0.4 }}
-            >
-              <p className="lab-nav-kicker">Design Lab</p>
-              <a href={`mailto:${contactEmail}`} className="lab-nav-email interactive-cursor">
-                {contactEmail}
-              </a>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

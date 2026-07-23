@@ -21,8 +21,6 @@ interface FeaturedProjectsStackProps {
   showBrowseAll?: boolean;
   browseAllLabel?: string;
   className?: string;
-  id?: string;
-  'data-journey-section'?: string;
 }
 
 function StackCard({
@@ -92,17 +90,11 @@ export default function FeaturedProjectsStack({
   showBrowseAll = true,
   browseAllLabel = 'Browse All Projects',
   className = '',
-  id,
-  'data-journey-section': journeySection,
 }: FeaturedProjectsStackProps) {
   if (!projects.length) return null;
 
   return (
-    <section
-      id={id}
-      data-journey-section={journeySection}
-      className={`featured-stack-section border-t border-[var(--border)] theme-transition ${className}`}
-    >
+    <section className={`featured-stack-section border-t border-[var(--border)] theme-transition ${className}`}>
       {title && (
         <div className="mx-auto max-w-7xl px-6 pt-20 sm:px-8 lg:px-12 lg:pt-28">
           <FadeIn>

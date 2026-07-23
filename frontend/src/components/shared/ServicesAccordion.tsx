@@ -127,15 +127,11 @@ type ServiceItem = {
 type ServicesAccordionProps = {
   imageFrameRef?: React.RefObject<HTMLDivElement | null>;
   sectionRef?: React.RefObject<HTMLElement | null>;
-  id?: string;
-  'data-journey-section'?: string;
 };
 
 export default function ServicesAccordion({
   imageFrameRef,
   sectionRef,
-  id,
-  'data-journey-section': journeySection,
 }: ServicesAccordionProps = {}) {
   const { cms, getContent } = useCms();
   const section = getContent<{
@@ -218,10 +214,8 @@ export default function ServicesAccordion({
 
   return (
     <section
-      id={id}
       ref={sectionRef}
-      data-journey-section={journeySection}
-      className="services-accordion-section px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28"
+      className="services-accordion-section border-t border-[var(--border)] px-6 py-20 theme-transition sm:px-8 lg:px-12 lg:py-28"
     >
       {hoverPreview ? createPortal(hoverPreview, document.body) : null}
 

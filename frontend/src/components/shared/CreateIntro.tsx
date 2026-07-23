@@ -7,7 +7,7 @@ const SESSION_KEY = 'abeer-create-intro-seen';
 const TOTAL_MS = 5000;
 const ease = [0.16, 1, 0.3, 1] as const;
 
-const PALETTE = ['#B8A4E3', '#8B6BB8', '#5A3F6A', '#3D2A52', '#FFFFFF'] as const;
+const PALETTE = ['#E5B7A1', '#C99A82', '#7A1F38', '#3A1018', '#FFFFFF'] as const;
 
 type IntroItem =
   | { id: string; kind: 'type'; delay: number; pos: string }

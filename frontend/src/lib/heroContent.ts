@@ -1,17 +1,43 @@
 import { resolveResumeUrl } from './resume';
 
-export const DEFAULT_HERO_TITLE = 'Turning Ideas Into Beautiful &\nFunctional Products.';
+export const DEFAULT_HERO_TITLE = 'Precision in Motion';
 
 export const DEFAULT_HERO_SUBTITLE_LINES = [
-  "I'm Abeer Nisar, a UI/UX Designer passionate about creating intuitive interfaces",
-  'while exploring AI-powered products that combine creativity, technology, and',
-  'meaningful user experiences.',
+  'UI/UX & product design, elevated by AI.',
 ] as const;
 
 export const DEFAULT_HERO_SUBTITLE = DEFAULT_HERO_SUBTITLE_LINES.join('\n');
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
+}
+
+/** Short editorial statement for the redesigned hero (2–4 words). */
+export function heroStatement(title: string): string {
+  const normalized = normalizeWhitespace(title).replace(/\.+$/, '');
+
+  if (/Turning Ideas Into Beautiful/i.test(normalized)) {
+    return 'Precision in Motion.';
+  }
+
+  const words = normalized.split(/\s+/).filter(Boolean);
+  if (words.length >= 2 && words.length <= 4) {
+    return normalized.includes('.') ? normalized : `${normalized}.`;
+  }
+
+  return 'Precision in Motion.';
+}
+
+/** One-line support copy under the statement. */
+export function heroSupportLine(subtitle: string): string {
+  const normalized = normalizeWhitespace(subtitle);
+  if (!normalized) return DEFAULT_HERO_SUBTITLE;
+  if (/passionate about creating intuitive interfaces/i.test(normalized)) {
+    return DEFAULT_HERO_SUBTITLE;
+  }
+  const first = normalized.split(/[.!?]/)[0]?.trim() || normalized;
+  if (first.length > 90) return DEFAULT_HERO_SUBTITLE;
+  return first.endsWith('.') ? first : `${first}.`;
 }
 
 export function heroTitleLines(title: string): string[] {
@@ -28,6 +54,10 @@ export function heroTitleLines(title: string): string[] {
 
   if (/Turning Ideas Into Beautiful\s*&\s*Functional Products\.?/i.test(normalized)) {
     return ['Turning Ideas Into Beautiful &', 'Functional Products.'];
+  }
+
+  if (/Precision in Motion\.?/i.test(normalized)) {
+    return ['Precision in Motion.'];
   }
 
   const match = normalized.match(/^(.+?)\s+(Functional Products\.?)$/i);

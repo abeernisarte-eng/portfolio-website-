@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import Link from 'next/link';
 import gsap from 'gsap';
 
 interface MagneticButtonProps {
@@ -9,6 +10,8 @@ interface MagneticButtonProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
+  href?: string;
+  'aria-label'?: string;
 }
 
 export default function MagneticButton({
@@ -17,25 +20,26 @@ export default function MagneticButton({
   onClick,
   type = 'button',
   disabled = false,
+  href,
+  'aria-label': ariaLabel,
 }: MagneticButtonProps) {
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const elementRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const button = buttonRef.current;
-    if (!button) return;
+    const el = elementRef.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(hover: none)').matches) return;
 
-    const xTo = gsap.quickTo(button, 'x', { duration: 0.8, ease: 'power3.out' });
-    const yTo = gsap.quickTo(button, 'y', { duration: 0.8, ease: 'power3.out' });
+    const xTo = gsap.quickTo(el, 'x', { duration: 0.75, ease: 'power3.out' });
+    const yTo = gsap.quickTo(el, 'y', { duration: 0.75, ease: 'power3.out' });
 
     const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const rect = button.getBoundingClientRect();
-      const x = clientX - (rect.left + rect.width / 2);
-      const y = clientY - (rect.top + rect.height / 2);
-      
-      // Pull element 35% closer to mouse position
-      xTo(x * 0.35);
-      yTo(y * 0.35);
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - (rect.left + rect.width / 2);
+      const y = e.clientY - (rect.top + rect.height / 2);
+      xTo(x * 0.38);
+      yTo(y * 0.38);
     };
 
     const handleMouseLeave = () => {
@@ -43,22 +47,39 @@ export default function MagneticButton({
       yTo(0);
     };
 
-    button.addEventListener('mousemove', handleMouseMove);
-    button.addEventListener('mouseleave', handleMouseLeave);
+    el.addEventListener('mousemove', handleMouseMove);
+    el.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
-      button.removeEventListener('mousemove', handleMouseMove);
-      button.removeEventListener('mouseleave', handleMouseLeave);
+      el.removeEventListener('mousemove', handleMouseMove);
+      el.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
+  const sharedClass = `relative inline-flex items-center justify-center ${className}`;
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        ref={elementRef as React.RefObject<HTMLAnchorElement>}
+        className={sharedClass}
+        aria-label={ariaLabel}
+        onClick={onClick}
+      >
+        {children}
+      </Link>
+    );
+  }
+
   return (
     <button
-      ref={buttonRef}
+      ref={elementRef as React.RefObject<HTMLButtonElement>}
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`relative inline-flex items-center justify-center transition-transform duration-100 ${className}`}
+      className={sharedClass}
+      aria-label={ariaLabel}
     >
       {children}
     </button>

@@ -41,22 +41,10 @@ interface FadeInProps {
 export default function FadeIn({
   children,
   className = '',
-  delay = 0,
-  direction = 'up',
-  once = true,
 }: FadeInProps) {
-  const variant = direction === 'scale' ? scaleIn : direction === 'up' ? fadeUp : fadeIn;
-
   return (
-    <motion.div
-      custom={delay}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: '-60px' }}
-      variants={variant}
-      className={className}
-    >
+    <div className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }

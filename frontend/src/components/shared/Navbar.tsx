@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { ObermannLogo } from '@/components/ui/ObermannMark';
 import { useTheme } from '@/context/ThemeContext';
@@ -16,6 +17,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === '/';
   const { cms } = useCms();
   const { theme, mounted: themeMounted } = useTheme();
@@ -23,7 +25,6 @@ export default function Navbar() {
   const navItems = (Array.isArray(cms.settings.navItems) && cms.settings.navItems.length
     ? cms.settings.navItems
     : defaultNav) as { name: string; path: string }[];
-  const brandName = settings.brandName || 'Abeer Nisar';
   const contactEmail = settings.contactEmail || 'abeernisar11@gmail.com';
 
   useEffect(() => {
@@ -56,27 +57,38 @@ export default function Navbar() {
     return pathname === path;
   };
 
+  const goBack = () => {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push('/');
+  };
+
   return (
     <>
       <header
         className={`lab-chrome ${isHome ? 'lab-chrome--figma-hero' : ''} ${open ? 'is-open' : ''}`}
-        aria-hidden={isHome ? true : undefined}
       >
         {!isHome && (
           <>
-            <Link
-              href="/"
-              className="lab-chrome-brand interactive-cursor"
-              onClick={() => setOpen(false)}
-            >
-              <ObermannLogo
-                size={16}
-                className={themeMounted && theme === 'dark' ? 'nav-logo-mark-dark' : ''}
-              />
-              <span className="lab-chrome-brand-name">{brandName}</span>
-            </Link>
+            {!open && (
+              <button
+                type="button"
+                className="lab-chrome-back interactive-cursor"
+                onClick={goBack}
+                aria-label="Go back"
+              >
+                <ArrowLeft size={16} strokeWidth={2} aria-hidden />
+                <span>Back</span>
+              </button>
+            )}
 
-            <div className="lab-chrome-actions">
+            <div className={`lab-chrome-actions${open ? ' lab-chrome-actions--end' : ''}`}>
               <ThemeToggle onHero={!themeMounted || theme === 'dark'} />
               <button
                 type="button"
@@ -91,6 +103,21 @@ export default function Navbar() {
             </div>
           </>
         )}
+
+        {isHome && open && (
+          <div className="lab-chrome-actions lab-chrome-actions--end">
+            <button
+              type="button"
+              className="lab-dot-menu interactive-cursor is-open"
+              aria-expanded
+              aria-controls="lab-nav-overlay"
+              aria-label="Close navigation"
+              onClick={() => setOpen(false)}
+            >
+              <i /><i /><i />
+            </button>
+          </div>
+        )}
       </header>
 
       <AnimatePresence>
@@ -104,7 +131,20 @@ export default function Navbar() {
             transition={{ duration: 0.75, ease }}
           >
             <div className="lab-nav-mesh" aria-hidden />
+            <div className="lab-nav-grid" aria-hidden />
             <div className="lab-nav-grain" aria-hidden />
+
+            <div className="lab-nav-top">
+              <button
+                type="button"
+                className="lab-nav-back interactive-cursor"
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+              >
+                <ArrowLeft size={16} strokeWidth={2} aria-hidden />
+                <span>Back</span>
+              </button>
+            </div>
 
             <nav className="lab-nav-list" aria-label="Primary">
               {navItems.map((item, i) => (
@@ -133,6 +173,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.45, duration: 0.4 }}
             >
+              <ObermannLogo size={22} className="lab-nav-mark" />
               <p className="lab-nav-kicker">Design Lab</p>
               <a href={`mailto:${contactEmail}`} className="lab-nav-email interactive-cursor">
                 {contactEmail}

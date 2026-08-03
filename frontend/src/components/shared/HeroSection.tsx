@@ -1,10 +1,19 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 import { ArrowDownToLine, Moon, Sun } from 'lucide-react';
 import { ObermannLogo } from '@/components/ui/ObermannMark';
+import MagneticButton from '@/components/ui/MagneticButton';
 import { useTheme } from '@/context/ThemeContext';
 import { DEFAULT_RESUME_URL, downloadResume, resolveResumeUrl } from '@/lib/resume';
 import { useCms } from '@/context/CmsContext';
@@ -255,11 +264,80 @@ export default function HeroSection({
     offset: ['start start', 'end start'],
   });
   const portfolioY = useTransform(scrollYProgress, [0, 1], [0, -40]);
-  const agentY = useTransform(scrollYProgress, [0, 1], [0, -24]);
+  const agentScrollY = useTransform(scrollYProgress, [0, 1], [0, -24]);
 
-  const handleResume = async (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    await downloadResume(resumeUrl);
+  // Blender / turntable-style orbit: cursor X = yaw, soft idle spin when still
+  const orbitTarget = useMotionValue(0);
+  const orbitX = useSpring(orbitTarget, { stiffness: 55, damping: 18, mass: 0.7 });
+  const agentRotateY = useTransform(orbitX, [-1, 1], [38, -38]);
+  const agentScaleX = useTransform(orbitX, [-1, 0, 1], [0.92, 1, 0.92]);
+  const agentShiftX = useTransform(orbitX, [-1, 1], [-18, 18]);
+  const sheenX = useTransform(orbitX, [-1, 1], ['18%', '82%']);
+  const shadowX = useTransform(orbitX, [-1, 1], ['42%', '58%']);
+  const agentSheen = useMotionTemplate`linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.14) 48%, transparent 66%)`;
+  const agentY = agentScrollY;
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) return;
+
+    let interacting = false;
+    let idle = 0;
+    let raf = 0;
+    let lastTs = 0;
+    let idleTimer = 0;
+
+    const onMove = (e: PointerEvent) => {
+      const el = pinRef.current;
+      if (!el) return;
+      interacting = true;
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        const cur = orbitTarget.get();
+        const amp = 0.55;
+        idle = Math.asin(Math.max(-1, Math.min(1, cur / amp)));
+        interacting = false;
+      }, 1200);
+      const rect = el.getBoundingClientRect();
+      const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      orbitTarget.set(Math.max(-1, Math.min(1, nx)));
+    };
+
+    const onLeave = () => {
+      interacting = false;
+      window.clearTimeout(idleTimer);
+    };
+
+    const tick = (ts: number) => {
+      const dt = lastTs ? Math.min(32, ts - lastTs) : 16;
+      lastTs = ts;
+
+      if (!interacting) {
+        idle += dt * 0.00055;
+        // Slow turntable sway — same left/right language as a 3D model viewer
+        orbitTarget.set(Math.sin(idle) * 0.55);
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    const el = pinRef.current;
+    if (!el) return;
+
+    el.addEventListener('pointermove', onMove, { passive: true });
+    el.addEventListener('pointerleave', onLeave);
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerleave', onLeave);
+      window.clearTimeout(idleTimer);
+      cancelAnimationFrame(raf);
+    };
+  }, [orbitTarget, reduceMotion]);
+
+  const handleResume = () => {
+    void downloadResume(resumeUrl);
   };
 
   const openMenu = () => {
@@ -323,11 +401,20 @@ export default function HeroSection({
           </motion.button>
         </div>
 
-        {/* Astronaut cutout only */}
+        {/* Astronaut — turntable orbit (Blender / 3D model viewer feel) */}
         <div className="figma-hero__agent-wrap">
           <motion.div
             className="figma-hero__agent"
-            style={reduceMotion ? undefined : { y: agentY }}
+            style={
+              reduceMotion
+                ? undefined
+                : {
+                    x: agentShiftX,
+                    y: agentY,
+                    rotateY: agentRotateY,
+                    scaleX: agentScaleX,
+                  }
+            }
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={ready ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.85, delay: 0.12, ease }}
@@ -340,7 +427,21 @@ export default function HeroSection({
               className="figma-hero__agent-img"
               draggable={false}
             />
-            <div className="figma-hero__agent-shadow" aria-hidden />
+            {!reduceMotion && (
+              <motion.div
+                className="figma-hero__agent-sheen"
+                style={{
+                  background: agentSheen,
+                  backgroundPositionX: sheenX,
+                }}
+                aria-hidden
+              />
+            )}
+            <motion.div
+              className="figma-hero__agent-shadow"
+              style={reduceMotion ? undefined : { left: shadowX }}
+              aria-hidden
+            />
           </motion.div>
         </div>
 
@@ -351,16 +452,14 @@ export default function HeroSection({
           </Link>
 
           <div className="figma-hero__header-actions">
-            <a
-              href={resumeUrl}
+            <MagneticButton
               onClick={handleResume}
               className="figma-hero__resume interactive-cursor"
+              aria-label="Download Resume"
             >
               <span>Download Resume</span>
-              <span className="figma-hero__resume-icon" aria-hidden>
-                <ArrowDownToLine size={16} strokeWidth={1.75} />
-              </span>
-            </a>
+              <ArrowDownToLine size={16} strokeWidth={2} aria-hidden />
+            </MagneticButton>
             <button
               type="button"
               className="figma-hero__menu interactive-cursor"

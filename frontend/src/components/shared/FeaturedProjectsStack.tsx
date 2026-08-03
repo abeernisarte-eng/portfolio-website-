@@ -3,7 +3,9 @@
 import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
 import FadeIn from '@/components/ui/FadeIn';
+import MagneticButton from '@/components/ui/MagneticButton';
 import { resolveImageUrl } from '@/lib/resolveImageUrl';
 
 interface Project {
@@ -125,9 +127,16 @@ export default function FeaturedProjectsStack({
 
       {showBrowseAll ? (
         <FadeIn className="mx-auto max-w-7xl px-6 pb-20 text-center sm:px-8 lg:px-12 lg:pb-28">
-          <Link href="/projects" className="btn-secondary interactive-cursor px-8 py-3.5 text-sm">
-            {browseAllLabel}
-          </Link>
+          <MagneticButton
+            href="/projects"
+            className="featured-stack-browse interactive-cursor"
+            aria-label={browseAllLabel}
+          >
+            <span className="featured-stack-browse__label">{browseAllLabel}</span>
+            <span className="featured-stack-browse__icon" aria-hidden>
+              <ArrowUpRight size={16} strokeWidth={2} />
+            </span>
+          </MagneticButton>
         </FadeIn>
       ) : (
         <div className="pb-20 lg:pb-28" />
